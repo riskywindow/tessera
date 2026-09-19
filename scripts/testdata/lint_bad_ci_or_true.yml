@@ -1,0 +1,12 @@
+# Fixture: a workflow whose test step cannot fail.
+# tessera-lint-expect: or-true
+name: fixture-or-true
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Run the CPU suite
+        run: |
+          set -euo pipefail
+          ctest --preset gcc-debug || true

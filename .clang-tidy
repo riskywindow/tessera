@@ -1,0 +1,126 @@
+# Tessera clang-tidy policy (clang-tidy 20 locally, clang-tidy 18 in the CI
+# minimum-version job). scripts/tidy.sh runs this over a preset's compile
+# database and fails on any diagnostic.
+#
+# The shim is low-level pointer, dlsym, and (later) inline-asm code, so the
+# families that catch exactly those mistakes are ON and stay on:
+#   bugprone-*          use-after-move, dangling handles, sizeof mistakes,
+#                       signed/unsigned and narrowing bugs in the credit math
+#   clang-analyzer-*    path-sensitive null/leak/uninitialised analysis
+#   cert-*              including cert-err33-c: an ignored return value is the
+#                       I-9 failure mode in C form
+#   concurrency-*       including concurrency-mt-unsafe: the shim runs inside
+#                       somebody else's threads and forks (I-4, T3)
+#   performance-*, portability-*, misc-*
+#
+# Every exclusion below names the reason it is not simply a bug we should fix.
+# There are no blanket family exclusions: each -check is individual.
+#
+# Test code relaxes four of these in tests/.clang-tidy, because GoogleTest
+# fixtures and fork()-based tests deliberately do what the product code must
+# not.
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  concurrency-*,
+  misc-*,
+  performance-*,
+  portability-*,
+  readability-avoid-const-params-in-decls,
+  readability-braces-around-statements,
+  readability-const-return-type,
+  readability-container-size-empty,
+  readability-convert-member-functions-to-static,
+  readability-delete-null-pointer,
+  readability-duplicate-include,
+  readability-else-after-return,
+  readability-implicit-bool-conversion,
+  readability-inconsistent-declaration-parameter-name,
+  readability-make-member-function-const,
+  readability-misleading-indentation,
+  readability-misplaced-array-index,
+  readability-named-parameter,
+  readability-non-const-parameter,
+  readability-qualified-auto,
+  readability-redundant-casting,
+  readability-redundant-control-flow,
+  readability-redundant-declaration,
+  readability-redundant-function-ptr-dereference,
+  readability-redundant-member-init,
+  readability-redundant-preprocessor,
+  readability-redundant-smartptr-get,
+  readability-redundant-string-cstr,
+  readability-redundant-string-init,
+  readability-simplify-boolean-expr,
+  readability-static-accessed-through-instance,
+  readability-static-definition-in-anonymous-namespace,
+  readability-string-compare,
+  readability-uniqueptr-delete-release,
+  -bugprone-easily-swappable-parameters,
+  -misc-include-cleaner,
+  -performance-enum-size
+
+# Rationale for the three exclusions, in the order they appear above.
+#
+# bugprone-easily-swappable-parameters
+#   The shim's entry points are CUDA driver-API signatures. cuMemcpyDtoD_v2,
+#   cuLaunchKernel and friends take runs of same-typed scalars in an order
+#   NVIDIA fixed; we cannot reorder them, wrap them in strong typedefs, or
+#   rename them without breaking the ABI we exist to impersonate. The check
+#   would fire on essentially every hooked symbol and teach us nothing.
+#
+# misc-include-cleaner
+#   It demands a direct include for every name, including ones supplied by the
+#   umbrella system headers it does not model: on tests/common/tenant_page_test.cc
+#   it asked for headers for WIFEXITED, CLOCK_MONOTONIC and pid_t in a file
+#   that already includes <sys/wait.h>, <ctime> and <unistd.h>. Include
+#   hygiene is enforced by the -Wall -Wextra -Werror builds across gcc 15,
+#   clang 20, gcc 13 and clang 18, which catch a genuinely missing include.
+#
+# performance-enum-size
+#   Enums in common/ mirror the width of the shared-memory fields they are
+#   stored in (PolicyFlag is written into TenantPage::policy_flags, a
+#   std::atomic<std::uint32_t>). Shrinking the base type would change a layout
+#   two separately compiled processes have to agree on byte for byte.
+#
+# Deliberately NOT enabled (they are not in the Checks list above, so they are
+# not "excluded" so much as never chosen):
+#   readability-magic-numbers, readability-identifier-length
+#     Layout, mask and shift constants are clearer as literals next to the
+#     struct they describe, and one-letter indices are correct in tight loops.
+#   readability-function-cognitive-complexity
+#     The forwarding table is one large, flat, deliberately boring function.
+#   readability-identifier-naming
+#     Naming is Google style by convention and review; a partially configured
+#     naming check produces rename churn without catching bugs.
+#   readability-suspicious-call-argument, readability-uppercase-literal-suffix,
+#   readability-math-missing-parentheses, readability-isolate-declaration
+#     Cosmetic, and already settled by .clang-format and review.
+#   cppcoreguidelines-*, modernize-*, google-*, hicpp-*, fuchsia-*, llvm-*
+#     Large overlapping families; the useful members (narrowing conversions,
+#     exception escape, no-recursion) are already reachable through bugprone-*
+#     and misc-*.
+
+# Headers are analysed only when they belong to Tessera. scripts/tidy.sh
+# overrides this with an absolute path anchored at the repo root, which also
+# keeps the fetched GoogleTest headers under build/<preset>/_deps out of it.
+# (ExcludeHeaderFilterRegex would be the direct way to say that, but it only
+# exists from clang-tidy 19 and CLAUDE.md requires clang 18 to work.)
+HeaderFilterRegex: '(^|/)(common|shim|daemon|cli|fake_driver|bench|tests)/'
+WarningsAsErrors: '*'
+FormatStyle: file
+SystemHeaders: false
+
+CheckOptions:
+  # Braces are mandatory; .clang-format's InsertBraces already adds them, so
+  # this keeps the two tools from disagreeing.
+  readability-braces-around-statements.ShortStatementLines: 0
+  # No exceptions cross the C ABI (CLAUDE.md section 5), so an escaping
+  # exception from anything the driver can call is an error, not a style note.
+  bugprone-exception-escape.FunctionsThatShouldNotThrow: 'main'
+  # Treat every getenv/strerror/fork-class function as unsafe, not just the
+  # POSIX subset: the shim is loaded into an application whose threading we
+  # do not control.
+  concurrency-mt-unsafe.FunctionSet: 'any'

@@ -1,0 +1,52 @@
+# Tessera editor defaults. These mirror the enforced tools rather than
+# replacing them: C/C++ is settled by .clang-format (Google style, 100
+# columns) and shell by scripts/lint_exit_codes.sh. What is here is what an
+# editor can get right before either tool runs.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.{c,cc,cpp,cxx,h,hh,hpp,hxx,cu,cuh}]
+indent_size = 2
+max_line_length = 100
+
+[{CMakeLists.txt,*.cmake}]
+indent_size = 2
+max_line_length = 100
+
+[*.{sh,bash}]
+indent_size = 2
+max_line_length = 100
+
+[*.py]
+# PEP 8 indentation; the Modal runner and the eval harness are the only
+# Python in the tree.
+indent_size = 4
+max_line_length = 100
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.json]
+indent_size = 2
+
+[*.md]
+# Two trailing spaces are a hard line break in Markdown.
+trim_trailing_whitespace = false
+max_line_length = 80
+
+[Makefile]
+indent_style = tab
+
+# Lint fixtures are deliberately malformed inputs to
+# scripts/lint_exit_codes.sh --self-test. An editor that "fixes" them on save
+# would silently weaken the self-test, so nothing here is normalised.
+[scripts/testdata/**]
+trim_trailing_whitespace = false
+insert_final_newline = false

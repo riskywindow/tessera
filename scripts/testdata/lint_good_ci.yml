@@ -1,0 +1,20 @@
+# Fixture: the shape a Tessera workflow step should have.
+name: fixture-good
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test
+        run: |
+          set -euo pipefail
+          cmake --preset gcc-debug
+          cmake --build --preset gcc-debug -j3
+          ctest --preset gcc-debug
+      - name: Count driver symbols
+        run: |
+          set -euo pipefail
+          nm -D --defined-only "$TESSERA_STUB" | grep -c ' T cu'

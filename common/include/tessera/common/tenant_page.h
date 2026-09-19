@@ -67,8 +67,7 @@ struct TenantPage {
   std::atomic<std::uint64_t> sampled;
 };
 
-static_assert(sizeof(TenantPage) <= kTenantPageSize,
-              "TenantPage must fit in one 4 KiB page");
+static_assert(sizeof(TenantPage) <= kTenantPageSize, "TenantPage must fit in one 4 KiB page");
 static_assert(alignof(TenantPage) == kCacheLine);
 static_assert(std::is_standard_layout_v<TenantPage>,
               "TenantPage is mapped by separately compiled processes");

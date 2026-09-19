@@ -4,12 +4,6 @@
 // this covers the runtime behaviour the shim's hot path depends on.
 #include "tessera/common/tenant_page.h"
 
-#include <gtest/gtest.h>
-
-#include <linux/futex.h>
-#include <sys/mman.h>
-#include <sys/syscall.h>
-#include <sys/wait.h>
 #include <unistd.h>
 
 #include <cerrno>
@@ -17,12 +11,19 @@
 #include <cstring>
 #include <ctime>
 
+#include <linux/futex.h>
+#include <sys/mman.h>
+#include <sys/syscall.h>
+#include <sys/wait.h>
+
+#include <gtest/gtest.h>
+
 namespace tessera {
 namespace {
 
 int FutexWait(std::atomic<std::uint32_t>* addr, std::uint32_t expected,
               std::chrono::nanoseconds timeout) {
-  struct timespec ts {};
+  struct timespec ts{};
   ts.tv_sec = static_cast<time_t>(timeout.count() / 1'000'000'000);
   ts.tv_nsec = static_cast<long>(timeout.count() % 1'000'000'000);
   return static_cast<int>(syscall(SYS_futex, reinterpret_cast<std::uint32_t*>(addr),
@@ -37,8 +38,8 @@ int FutexWake(std::atomic<std::uint32_t>* addr, int count) {
 class TenantPageTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    void* mem = mmap(nullptr, kTenantPageSize, PROT_READ | PROT_WRITE,
-                     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    void* mem =
+        mmap(nullptr, kTenantPageSize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     ASSERT_NE(mem, MAP_FAILED) << std::strerror(errno);
     std::memset(mem, 0, kTenantPageSize);
     page_ = new (mem) TenantPage{};
@@ -46,9 +47,7 @@ class TenantPageTest : public ::testing::Test {
     page_->layout_version.store(kTenantPageLayoutVersion, std::memory_order_release);
   }
 
-  void TearDown() override {
-    ASSERT_EQ(munmap(page_, kTenantPageSize), 0) << std::strerror(errno);
-  }
+  void TearDown() override { ASSERT_EQ(munmap(page_, kTenantPageSize), 0) << std::strerror(errno); }
 
   TenantPage* page_ = nullptr;
 };
@@ -57,8 +56,7 @@ class TenantPageTest : public ::testing::Test {
 // stale or foreign file has to be able to tell.
 TEST_F(TenantPageTest, IdentifiesItself) {
   EXPECT_EQ(page_->magic.load(std::memory_order_acquire), kTenantPageMagic);
-  EXPECT_EQ(page_->layout_version.load(std::memory_order_acquire),
-            kTenantPageLayoutVersion);
+  EXPECT_EQ(page_->layout_version.load(std::memory_order_acquire), kTenantPageLayoutVersion);
 }
 
 // The debit is the whole fast path: one fetch_sub whose previous value decides
@@ -139,18 +137,16 @@ TEST_F(TenantPageTest, FutexWordWakesAWaiter) {
 // I-5: staleness is judged from the daemon's own clock stamp, so a shim that
 // maps a page mid-run can decide to fail open without watching two ticks.
 TEST_F(TenantPageTest, StalenessIsJudgedFromTheEpochStamp) {
-  struct timespec now {};
+  struct timespec now{};
   ASSERT_EQ(clock_gettime(CLOCK_MONOTONIC, &now), 0);
   const std::int64_t now_ns = now.tv_sec * 1'000'000'000LL + now.tv_nsec;
 
   page_->epoch_mono_ns.store(now_ns, std::memory_order_release);
-  EXPECT_LT(now_ns - page_->epoch_mono_ns.load(std::memory_order_acquire),
-            100'000'000LL)
+  EXPECT_LT(now_ns - page_->epoch_mono_ns.load(std::memory_order_acquire), 100'000'000LL)
       << "a just-written stamp must not look stale";
 
   page_->epoch_mono_ns.store(now_ns - 150'000'000LL, std::memory_order_release);
-  EXPECT_GT(now_ns - page_->epoch_mono_ns.load(std::memory_order_acquire),
-            100'000'000LL)
+  EXPECT_GT(now_ns - page_->epoch_mono_ns.load(std::memory_order_acquire), 100'000'000LL)
       << "a 150 ms old stamp must trip the 100 ms fail-open threshold";
 }
 

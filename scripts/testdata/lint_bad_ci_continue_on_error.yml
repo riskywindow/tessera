@@ -1,0 +1,10 @@
+# Fixture: a workflow step that is allowed to be red without failing the job.
+# tessera-lint-expect: ci-continue-on-error
+name: fixture-continue-on-error
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: ctest --preset gcc-debug
+        continue-on-error: true

@@ -1,0 +1,234 @@
+# CPU tests on both architectures, at the minimum compiler versions the
+# project claims to support (CLAUDE.md section 5: clang 18+, gcc 13+). The dev
+# host runs gcc 15 and clang 20, so this workflow is the only place the floor
+# is actually exercised.
+#
+# Jobs:
+#   cpu-x86-64   ubuntu-24.04, gcc-13 and clang-18, Debug + Release + the
+#                ASan/UBSan and TSan configurations (G3a, G4).
+#   cpu-arm64    ubuntu-24.04-arm, native arm64 with gcc-13 and clang-18
+#                (G3b; the local matrix covers arm64 by cross-compiling and
+#                running the same tests under qemu-aarch64).
+#   lint         lint_exit_codes + clang-format --check + clang-tidy.
+#
+# clang-format is pinned to 19.1.7 from PyPI so this workflow and the dev box
+# produce byte-identical formatting. clang-tidy is Ubuntu 24.04's clang-tidy-18
+# on purpose: the policy in .clang-tidy has to hold at the supported floor, not
+# only on the newer toolchain the dev box happens to have.
+#
+# NOTE: the repository has no git remote yet, so this file has never been
+# executed. It is written to be correct by construction; the first push will
+# be its first run.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    # Explicit 'bash' gives '-eo pipefail', which the default shell does not.
+    shell: bash
+
+jobs:
+  cpu-x86-64:
+    name: x86-64 ${{ matrix.preset }} (${{ matrix.cxx }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: gcc-debug
+            cc: gcc-13
+            cxx: g++-13
+            apt: g++-13
+          - preset: gcc-release
+            cc: gcc-13
+            cxx: g++-13
+            apt: g++-13
+          - preset: clang-debug
+            cc: clang-18
+            cxx: clang++-18
+            apt: clang-18 libclang-rt-18-dev
+          - preset: clang-release
+            cc: clang-18
+            cxx: clang++-18
+            apt: clang-18 libclang-rt-18-dev
+          - preset: gcc-asan
+            cc: gcc-13
+            cxx: g++-13
+            apt: g++-13
+          - preset: clang-asan
+            cc: clang-18
+            cxx: clang++-18
+            apt: clang-18 libclang-rt-18-dev
+          - preset: clang-tsan
+            cc: clang-18
+            cxx: clang++-18
+            apt: clang-18 libclang-rt-18-dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build ${{ matrix.apt }}
+          cmake --version
+          ninja --version
+          ${{ matrix.cxx }} --version
+
+      - name: Cache CUDA driver headers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/tessera-deps
+          key: tessera-deps-x86_64-${{ hashFiles('scripts/fetch_cuda_headers.sh') }}
+
+      - name: Fetch CUDA driver headers and stub
+        run: scripts/fetch_cuda_headers.sh x86_64
+
+      - name: Configure
+        run: |
+          set -euo pipefail
+          cmake --preset ${{ matrix.preset }} \
+            -DCMAKE_C_COMPILER=${{ matrix.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }} -j 3
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }} --parallel 3
+
+      - name: Upload ctest log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctest-x86-64-${{ matrix.preset }}
+          path: build/${{ matrix.preset }}/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
+
+  cpu-arm64:
+    name: arm64 ${{ matrix.preset }} (${{ matrix.cxx }})
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - preset: gcc-debug
+            cc: gcc-13
+            cxx: g++-13
+            apt: g++-13
+          - preset: clang-debug
+            cc: clang-18
+            cxx: clang++-18
+            apt: clang-18 libclang-rt-18-dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build ${{ matrix.apt }}
+          uname -m
+          ${{ matrix.cxx }} --version
+
+      - name: Cache CUDA driver headers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/tessera-deps
+          key: tessera-deps-aarch64-${{ hashFiles('scripts/fetch_cuda_headers.sh') }}
+
+      - name: Fetch CUDA driver headers and stub
+        run: scripts/fetch_cuda_headers.sh aarch64
+
+      - name: Configure
+        run: |
+          set -euo pipefail
+          cmake --preset ${{ matrix.preset }} \
+            -DCMAKE_C_COMPILER=${{ matrix.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }} -j 3
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }} --parallel 3
+
+      - name: Upload ctest log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctest-arm64-${{ matrix.preset }}
+          path: build/${{ matrix.preset }}/Testing/Temporary/LastTest.log
+          if-no-files-found: ignore
+
+  lint:
+    name: lint, format, tidy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build clang-18 clang-tidy-18 libclang-rt-18-dev
+          clang-tidy-18 --version
+
+      - name: Install clang-format 19.1.7
+        run: |
+          set -euo pipefail
+          pipx install "clang-format==19.1.7"
+          echo "${HOME}/.local/bin" >>"${GITHUB_PATH}"
+          "${HOME}/.local/bin/clang-format" --version
+
+      - name: Cache CUDA driver headers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/tessera-deps
+          key: tessera-deps-x86_64-${{ hashFiles('scripts/fetch_cuda_headers.sh') }}
+
+      - name: Fetch CUDA driver headers and stub
+        run: scripts/fetch_cuda_headers.sh x86_64
+
+      - name: Lint self-test (the linter's own fixtures)
+        run: scripts/lint_exit_codes.sh --self-test
+
+      - name: Lint exit codes (I-9)
+        run: scripts/lint_exit_codes.sh
+
+      - name: clang-format --check
+        # Point the script at the pinned binary by absolute path so a
+        # clang-format that happens to be on the runner image cannot win.
+        run: |
+          set -euo pipefail
+          TESSERA_CLANG_FORMAT="${HOME}/.local/bin/clang-format" scripts/format.sh --check
+
+      - name: Configure clang-debug for the compile database
+        run: |
+          set -euo pipefail
+          cmake --preset clang-debug \
+            -DCMAKE_C_COMPILER=clang-18 \
+            -DCMAKE_CXX_COMPILER=clang++-18
+
+      - name: clang-tidy
+        env:
+          TESSERA_CLANG_TIDY: clang-tidy-18
+        run: scripts/tidy.sh --preset clang-debug --jobs 3

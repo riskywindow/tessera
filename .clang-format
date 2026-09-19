@@ -1,0 +1,87 @@
+# Tessera C/C++ formatting. Google style with a 100-column limit.
+#
+# Pinned tool version: clang-format 19.1.7 (CI installs exactly this via pipx;
+# see .github/workflows/ci.yml). Newer clang-format releases change defaults,
+# so scripts/format.sh warns when the local major version differs.
+---
+Language: Cpp
+BasedOnStyle: Google
+Standard: Latest
+ColumnLimit: 100
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+AccessModifierOffset: -1
+
+# Pointer/reference binding is fixed rather than derived from the file, so a
+# new file cannot establish a different house style by accident.
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Left
+QualifierAlignment: Leave
+
+# The shim's hot path is read line by line in review; keep short bodies on
+# their own lines instead of collapsing them onto the control statement.
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+InsertBraces: true
+
+# Include ordering. Category 0 is the file's own header (Google default
+# behaviour via IncludeIsMainRegex). Then C system, C++ standard, third party
+# (CUDA and GoogleTest), then tessera headers.
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<(cuda|cudaTypedefs)\.h>$'
+    Priority: 4
+  - Regex: '^<(gtest|gmock)/'
+    Priority: 5
+  - Regex: '^<[a-z_]+\.h>$'
+    Priority: 2
+  - Regex: '^<[^/>.]+>$'
+    Priority: 3
+  - Regex: '^<'
+    Priority: 4
+  - Regex: '^"tessera/'
+    Priority: 6
+  - Regex: '.*'
+    Priority: 7
+IncludeIsMainRegex: '(_test|_unittest)?$'
+
+# Namespaces are never indented; every namespace gets a closing comment.
+NamespaceIndentation: None
+FixNamespaceComments: true
+ShortNamespaceLines: 0
+
+SeparateDefinitionBlocks: Leave
+EmptyLineBeforeAccessModifier: LogicalBlock
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+# Line-comment reflowing is off: comments here carry deliberate line breaks
+# (ASCII layout diagrams, symbol tables) that reflowing would destroy.
+ReflowComments: false
+SpacesBeforeTrailingComments: 2
+
+AlignAfterOpenBracket: Align
+AlignEscapedNewlines: Left
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
+BinPackArguments: true
+BinPackParameters: true
+PackConstructorInitializers: NextLine
+
+# Inline asm in the shim is written as a block; do not try to re-indent it.
+IndentPPDirectives: None
+AttributeMacros:
+  - TESSERA_EXPORT
+  - TESSERA_HOT
+  - TESSERA_NOINLINE
+StatementAttributeLikeMacros:
+  - TESSERA_LIKELY
+  - TESSERA_UNLIKELY

@@ -1,0 +1,30 @@
+# Test-only relaxations on top of the repository policy in //.clang-tidy.
+# clang-tidy merges this with the parent file, so everything not named here is
+# still enforced exactly as it is for product code.
+#
+# Each entry is a thing test code must be allowed to do and product code must
+# not, which is why it lives here and not in the root configuration.
+Checks: >
+  -concurrency-mt-unsafe,
+  -misc-non-private-member-variables-in-classes,
+  -cert-err58-cpp,
+  -readability-function-cognitive-complexity
+
+# concurrency-mt-unsafe
+#   The CPU suite exists to exercise fork() and to report errno through
+#   std::strerror. T3 forks on purpose with another thread holding a shim
+#   lock; a test that could not call fork could not make that claim. The check
+#   stays on for shim/, daemon/, cli/, fake_driver/ and common/.
+#
+# misc-non-private-member-variables-in-classes
+#   GoogleTest fixtures hand their state to TEST_F bodies through protected
+#   members. That is the framework's interface, not our design choice.
+#
+# cert-err58-cpp
+#   TEST/TEST_F expand to namespace-scope registration objects whose
+#   constructors are allowed to throw. There is no version of a GoogleTest
+#   file that satisfies this check.
+#
+# readability-function-cognitive-complexity
+#   A TEST_F body is a straight-line list of assertions; its "complexity" is
+#   the number of properties being asserted, which we want to be large.
