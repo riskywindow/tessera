@@ -1,0 +1,15 @@
+# Build trees live on tmpfs on the dev host; build/ is a symlink there.
+/build
+/build/
+/compile_commands.json
+.cache/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+# Large run outputs never get committed; results/ holds small JSON only.
+results/**/*.bin
+results/**/*.pt
+results/**/*.nsys-rep
+results/**/*.qdrep
