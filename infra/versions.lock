@@ -1,0 +1,255 @@
+# Tessera pinned versions: the single source of truth.
+#
+# infra/modal_gpu.py reads this file (tomllib) and builds the Modal image from
+# it. Nothing else may hard-code a version. Every entry records how the pin was
+# verified and when; no value here is a guess or a recollection.
+#
+# Verification methods referenced below:
+#   registry-manifest  HEAD on registry-1.docker.io /v2/<repo>/manifests/<tag>
+#                      with a Docker Hub pull token; the recorded digest is the
+#                      Docker-Content-Digest header returned for that tag.
+#   pypi-json          GET https://pypi.org/pypi/<pkg>/<ver>/json returned 200,
+#                      and info.requires_dist / info.requires_python were read
+#                      from that response.
+#   apt-packages-index GET <repo>/dists/<suite>/main/binary-amd64/Packages.gz,
+#                      gunzipped, and the Version: field read for the package.
+#   local-binary       the tool was run on the dev host and printed the version.
+#   repo-file          the value is already pinned in a committed repo file and
+#                      this entry only mirrors it.
+#   image-manifest     resolved inside the built image and written to
+#                      /opt/tessera/image_manifest.json at image-build time;
+#                      every results JSON embeds it (I-1).
+
+schema_version = 1
+verified_on = "2026-09-19"
+verified_by = "WP-0.6 (gpu-infra subagent)"
+
+# ---------------------------------------------------------------------------
+# Base container image
+# ---------------------------------------------------------------------------
+[base_image]
+repository = "nvidia/cuda"
+tag = "12.6.3-devel-ubuntu22.04"
+reference = "nvidia/cuda:12.6.3-devel-ubuntu22.04"
+digest = "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1"
+platform = "linux/amd64"
+distro = "ubuntu22.04 (jammy, glibc 2.35)"
+verified_by = "registry-manifest"
+notes = """
+Chosen as the newest 12.6.x -devel tag on ubuntu22.04 (12.6.1/12.6.2/12.6.3 are
+the ubuntu22.04 -devel tags Docker Hub lists for 12.6). Jammy is deliberate: it
+is old enough that clang-18 and g++-13 are the toolchains under test rather than
+whatever the distro ships, which is what the brief's minimum-compiler claim
+needs. Modal's from_registry is given the tag, not the digest, because
+modal 1.5.5 from_registry() takes a tag string; the digest above is recorded so
+a rebuild can be checked against it.
+"""
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+[python]
+version = "3.11"
+source = "modal Image.from_registry(add_python=\"3.11\")"
+verified_by = "image-manifest"
+notes = """
+The base image ships no python; modal's add_python installs a standalone 3.11.
+vllm 0.19.1 declares requires_python '<3.14,>=3.10' and torch 2.10.0 declares
+'>=3.10', so 3.11 satisfies both (pypi-json, see below).
+"""
+
+# ---------------------------------------------------------------------------
+# Compilers. These are the brief's MINIMUM versions; the dev host runs
+# gcc 15.2 / clang 20.1.8, so the image is what proves the minimum still builds.
+# ---------------------------------------------------------------------------
+[compilers.clang]
+apt_package = "clang-18"
+major = 18
+observed_version = "1:18.1.8~++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144"
+upstream_release = "18.1.8"
+apt_repository = "deb https://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
+apt_key = "https://apt.llvm.org/llvm-snapshot.gpg.key"
+extra_packages = ["clang-tools-18", "libclang-rt-18-dev", "lld-18"]
+verified_by = "apt-packages-index"
+pin_policy = "major"
+notes = """
+apt-get installs the unversioned name 'clang-18'; the pin that matters is the
+major version, which is what the brief specifies. observed_version is the exact
+Version: string that apt.llvm.org's llvm-toolchain-jammy-18 index carried on
+verified_on. The version actually installed is re-resolved at image-build time
+into image_manifest.json, and that measured string - not this one - is what the
+results JSON reports.
+"""
+
+[compilers.gcc]
+apt_package = "g++-13"
+major = 13
+observed_version = "13.4.0-6ubuntu1~22~ppa2"
+upstream_release = "13.4.0"
+apt_repository = "ppa:ubuntu-toolchain-r/test (jammy)"
+extra_packages = ["gcc-13", "libstdc++-13-dev"]
+verified_by = "apt-packages-index"
+pin_policy = "major"
+notes = """
+Jammy's own archive stops at gcc-12, so g++-13 comes from the
+ubuntu-toolchain-r/test PPA. Same pin policy and same image-manifest rule as
+clang. libstdc++-13-dev is also what clang-18 picks up as its C++ standard
+library, so the C++23 support both compilers see comes from GCC 13's libstdc++.
+"""
+
+# ---------------------------------------------------------------------------
+# Build tools
+# ---------------------------------------------------------------------------
+[build_tools.cmake]
+version = "3.31.6"
+source = "pypi:cmake==3.31.6"
+verified_by = "pypi-json"
+notes = """
+CMakeLists.txt requires CMake >= 3.28 and jammy ships 3.22, so cmake comes from
+the PyPI wheel rather than apt. 3.31.6 is also the dev host's version
+(local-binary: 'cmake version 3.31.6'), which keeps image and host on one
+CMake. pypi-json confirmed a manylinux x86_64 wheel exists for this version.
+"""
+
+[build_tools.ninja]
+version = "1.13.2"
+source = "pypi:ninja==1.13.2"
+apt_package = "ninja-build"
+verified_by = "pypi-json"
+notes = """
+The brief asks for apt ninja-build; jammy's is 1.10.1. Both are installed: apt
+ninja-build for the brief, and the pinned PyPI wheel 1.13.2, which lands in
+/usr/local/bin and therefore wins on PATH (same version as the dev host,
+local-binary: 'ninja 1.13.2'). image_manifest.json records which binary and
+version actually resolved, so no guessing is involved.
+"""
+
+[build_tools.clang_format]
+version = "19.1.7"
+source = "dev host apt (Ubuntu 26.04)"
+verified_by = "local-binary"
+notes = """
+'clang-format --version' on the dev host printed 'clang-format version 19.1.7'.
+Formatting is enforced on the host and in CI, not inside the GPU image, so this
+is recorded as the project-wide formatter pin rather than an image package.
+"""
+
+# ---------------------------------------------------------------------------
+# CUDA
+# ---------------------------------------------------------------------------
+[cuda.headers]
+package_version = "12.6.77-1"
+packages = ["cuda-cudart-dev-12-6", "cuda-driver-dev-12-6"]
+repo_distro = "ubuntu2404"
+fetched_by = "scripts/fetch_cuda_headers.sh"
+verified_by = "repo-file"
+notes = """
+scripts/fetch_cuda_headers.sh pins CUDA_PKG_VERSION=12.6.77-1 and verifies each
+.deb's SHA-256 against NVIDIA's own Packages index before extracting, so the
+script is the verification. The image build runs that same script, which is why
+this entry mirrors it instead of restating a hash. cuda.h and cudaTypedefs.h
+come from cuda-cudart-dev; stubs/libcuda.so (the authoritative export list)
+comes from cuda-driver-dev.
+"""
+
+[cuda.toolkit]
+version = "12.6.3"
+source = "base image (/usr/local/cuda)"
+verified_by = "image-manifest"
+notes = "nvcc from the base image compiles bench/samples/vector_add.cu."
+
+[cuda.gencode]
+# sm_89 is L4 (the M0 GPU). The others let TESSERA_GPU override to A100 (80),
+# A10G/L4-class Ampere (86) and H100 (90) without a rebuild.
+architectures = ["80", "86", "89", "90"]
+ptx_fallback = "90"
+verified_by = "image-manifest"
+notes = """
+Recorded as the -gencode list passed to nvcc. Which of these the run actually
+used is reported by the sample at runtime (it prints the device's compute
+capability), not assumed here.
+"""
+
+# ---------------------------------------------------------------------------
+# Python packages in the image
+# ---------------------------------------------------------------------------
+[python_packages.torch]
+version = "2.10.0"
+source = "pypi:torch==2.10.0"
+verified_by = "pypi-json"
+cuda_build = "cu12"
+notes = """
+Two things were checked on PyPI for this pin, both from the /pypi/torch/2.10.0/
+json response:
+  1. requires_dist contains 'nvidia-cuda-runtime-cu12==12.8.90' and
+     'nvidia-cublas-cu12==12.8.4.1', i.e. the default PyPI wheel for 2.10.0 is a
+     CUDA 12 build. torch 2.11.0 and later moved the default wheel to cu13
+     (requires_dist there names nvidia-cudnn-cu13 / nvidia-nccl-cu13), which
+     would put a CUDA 13 runtime on top of a CUDA 12.6 image and driver. 2.10.0
+     is therefore the newest torch that stays inside the CUDA 12 line.
+  2. a cp311 manylinux_2_28_x86_64 wheel exists, so no source build on jammy.
+CUDA minor-version compatibility covers the 12.8 runtime bundled in the wheel
+running against the 12.6-era driver on the host; the driver and CUDA driver
+version actually seen are measured by platform_probe and recorded in
+results/m0/platform.json rather than asserted here.
+"""
+
+[python_packages.numpy]
+version = "2.4.6"
+source = "pypi:numpy==2.4.6"
+verified_by = "pypi-json"
+notes = """
+Required, not optional. The first image build left numpy out and torch printed
+"Failed to initialize NumPy: No module named 'numpy'" during the build, which
+would have made eval/m0/torch_matmul_loop.py's tensor->bytes step fail at GPU
+time. 2.4.6 is the newest numpy that still publishes a cp311 wheel
+(numpy 2.5.x declares requires_python '>=3.12'); the wheel checked was
+numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.
+Installed in its own pip layer after torch so a change here does not force the
+multi-GB torch layer to rebuild.
+"""
+
+[python_packages.vllm]
+version = "0.19.1"
+source = "pypi:vllm==0.19.1"
+verified_by = "pypi-json"
+for_milestone = "M1"
+notes = """
+Chosen so vllm's torch requirement is exactly the torch pin. From
+/pypi/vllm/0.19.1/json: requires_dist contains 'torch==2.10.0' (also
+torchvision==0.25.0, torchaudio==2.10.0), requires_python is '<3.14,>=3.10',
+and the published wheel is vllm-0.19.1-cp38-abi3-manylinux_2_31_x86_64.whl,
+which jammy's glibc 2.35 satisfies. The next vllm (0.20.0) pins torch==2.11.0,
+which is the cu13 wheel ruled out above, so 0.19.1 is the newest vllm that is
+compatible with a CUDA 12 torch. The vllm image layer is defined in
+infra/modal_gpu.py but is NOT built in M0; it is M1's.
+"""
+
+# ---------------------------------------------------------------------------
+# Test-only dependencies
+# ---------------------------------------------------------------------------
+[test_deps.googletest]
+version = "1.17.0"
+sha256 = "65fab701d9829d38cb77c14acdc431d2108bfdbf8979e40eb8ae567edf10b27c"
+url = "https://github.com/google/googletest/releases/download/v1.17.0/googletest-1.17.0.tar.gz"
+verified_by = "repo-file"
+notes = """
+Mirrors cmake/TesseraTesting.cmake, which is the enforcing copy: FetchContent
+checks URL_HASH SHA256 against exactly this value. The image build pre-downloads
+the tarball into $TESSERA_DEPS and re-checks the same hash with sha256sum, so
+the in-image build is hermetic and the hash is verified twice.
+"""
+
+# ---------------------------------------------------------------------------
+# Control plane
+# ---------------------------------------------------------------------------
+[tooling.modal]
+version = "1.5.5"
+verified_by = "local-binary"
+notes = """
+'modal --version' on the dev host printed 'modal client version: 1.5.5', and
+the installed package at
+~/.local/share/pipx/venvs/modal/lib/python3.14/site-packages/modal reports
+modal.__version__ == '1.5.5'. infra/modal_gpu.py was written against that
+package's own type stubs (image.pyi, app.pyi), not from memory.
+"""

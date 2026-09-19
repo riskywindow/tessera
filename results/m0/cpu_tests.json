@@ -1,0 +1,205 @@
+{
+  "argv": [
+    "/root/.local/bin/modal",
+    "run",
+    "infra/modal_gpu.py",
+    "--action",
+    "cpu_tests"
+  ],
+  "command": "TESSERA_GPU=L4 modal run infra/modal_gpu.py --action cpu_tests",
+  "error": null,
+  "exit_code": 0,
+  "finished_utc": "2026-09-19T22:08:39Z",
+  "git": {
+    "branch": "main",
+    "commit": "4426382104dd7f389c65f30b867a028a77a9858e",
+    "dirty": true,
+    "dirty_paths": [
+      "M common/include/tessera/common/tenant_page.h",
+      " M tests/common/tenant_page_test.cc",
+      "?? .clang-format",
+      "?? .clang-tidy",
+      "?? .editorconfig",
+      "?? .github/",
+      "?? bench/",
+      "?? eval/",
+      "?? fake_driver/",
+      "?? infra/",
+      "?? results/m0/cpu_tests.json",
+      "?? results/spend/",
+      "?? scripts/check_all.sh",
+      "?? scripts/format.sh",
+      "?? scripts/lint_exit_codes.sh",
+      "?? scripts/testdata/",
+      "?? scripts/tidy.sh",
+      "?? tests/.clang-tidy",
+      "?? tests/fake_driver/"
+    ]
+  },
+  "gpu": {
+    "compute_mode": null,
+    "cuda_driver_version": null,
+    "cuda_runtime_version": null,
+    "cuda_runtime_version_torch": null,
+    "driver_version": null,
+    "model": null,
+    "uuid": null
+  },
+  "image": {
+    "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+    "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+    "manifest": {
+      "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+      "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+      "built_at_utc": "2026-09-19T22:08:25Z",
+      "cuda_headers": {
+        "cuda_version": 12060,
+        "package_version": "12.6.77-1",
+        "path": "/opt/tessera-deps/cuda-12.6/x86_64-linux/include/cuda.h"
+      },
+      "kind": "tessera_image_manifest",
+      "os_release": "Ubuntu 22.04.5 LTS",
+      "paths": {
+        "bin_dir": "/opt/tessera-bin",
+        "build_dir": "/opt/tessera-build",
+        "build_trees": [
+          "clang-18",
+          "gcc-13"
+        ],
+        "deps": "/opt/tessera-deps",
+        "repo": "/opt/tessera",
+        "vector_add": "/opt/tessera-bin/vector_add"
+      },
+      "python_packages": {
+        "pinned_torch": "2.10.0",
+        "pinned_vllm_for_m1": "0.19.1",
+        "torch": "2.10.0+cu128",
+        "torch_cuda": "12.8",
+        "torch_git_version": "449b1768410104d3ed79d3bcfe4ba1d65c7f22c0"
+      },
+      "toolchain": {
+        "clang": {
+          "binary": "clang++-18",
+          "path": "/usr/bin/clang++-18",
+          "version_line": "Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)"
+        },
+        "cmake": {
+          "path": "/usr/local/bin/cmake",
+          "version_line": "cmake version 3.31.6"
+        },
+        "gcc": {
+          "binary": "g++-13",
+          "dumpfullversion": "13.4.0",
+          "path": "/usr/bin/g++-13",
+          "version_line": "g++-13 (Ubuntu 13.4.0-6ubuntu1~22~ppa2) 13.4.0"
+        },
+        "ninja": {
+          "path": "/usr/local/bin/ninja",
+          "version": "1.13.2.git.kitware.jobserver-pipe-1"
+        },
+        "nvcc": {
+          "path": "/usr/local/cuda/bin/nvcc",
+          "version": "Build cuda_12.6.r12.6/compiler.35059454_0"
+        },
+        "python": "3.11.5"
+      },
+      "versions_lock_verified_on": "2026-09-19"
+    }
+  },
+  "kind": "tessera_cpu_tests_result",
+  "milestone": "M0",
+  "modal": {
+    "app_id": "ap-jTj3J8tB6R4mVN00KIVjwC",
+    "app_name": "tessera-m0",
+    "client_version": "1.5.5",
+    "detached": false,
+    "function": "cpu_tests",
+    "gpu_requested": null,
+    "timeout_s": 1200
+  },
+  "result": {
+    "finished_utc": "2026-09-19T22:08:39Z",
+    "gpu_requested": null,
+    "image_manifest": {
+      "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+      "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+      "built_at_utc": "2026-09-19T22:08:25Z",
+      "cuda_headers": {
+        "cuda_version": 12060,
+        "package_version": "12.6.77-1",
+        "path": "/opt/tessera-deps/cuda-12.6/x86_64-linux/include/cuda.h"
+      },
+      "kind": "tessera_image_manifest",
+      "os_release": "Ubuntu 22.04.5 LTS",
+      "paths": {
+        "bin_dir": "/opt/tessera-bin",
+        "build_dir": "/opt/tessera-build",
+        "build_trees": [
+          "clang-18",
+          "gcc-13"
+        ],
+        "deps": "/opt/tessera-deps",
+        "repo": "/opt/tessera",
+        "vector_add": "/opt/tessera-bin/vector_add"
+      },
+      "python_packages": {
+        "pinned_torch": "2.10.0",
+        "pinned_vllm_for_m1": "0.19.1",
+        "torch": "2.10.0+cu128",
+        "torch_cuda": "12.8",
+        "torch_git_version": "449b1768410104d3ed79d3bcfe4ba1d65c7f22c0"
+      },
+      "toolchain": {
+        "clang": {
+          "binary": "clang++-18",
+          "path": "/usr/bin/clang++-18",
+          "version_line": "Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)"
+        },
+        "cmake": {
+          "path": "/usr/local/bin/cmake",
+          "version_line": "cmake version 3.31.6"
+        },
+        "gcc": {
+          "binary": "g++-13",
+          "dumpfullversion": "13.4.0",
+          "path": "/usr/bin/g++-13",
+          "version_line": "g++-13 (Ubuntu 13.4.0-6ubuntu1~22~ppa2) 13.4.0"
+        },
+        "ninja": {
+          "path": "/usr/local/bin/ninja",
+          "version": "1.13.2.git.kitware.jobserver-pipe-1"
+        },
+        "nvcc": {
+          "path": "/usr/local/cuda/bin/nvcc",
+          "version": "Build cuda_12.6.r12.6/compiler.35059454_0"
+        },
+        "python": "3.11.5"
+      },
+      "versions_lock_verified_on": "2026-09-19"
+    },
+    "kind": "cpu_tests",
+    "pass": true,
+    "started_utc": "2026-09-19T22:08:38Z",
+    "suites": {
+      "clang-18": {
+        "exit_code": 0,
+        "ok": true,
+        "stderr_tail": "",
+        "stdout_tail": "Internal ctest changing into directory: /opt/tessera-build/clang-18\nTest project /opt/tessera-build/clang-18\n    Start 1: TenantPageTest.IdentifiesItself\n    Start 2: TenantPageTest.CreditDebitReportsPriorBalance\n    Start 3: TenantPageTest.SharedAcrossProcesses\n    Start 4: TenantPageTest.FutexWordWakesAWaiter\n1/5 Test #1: TenantPageTest.IdentifiesItself .....................   Passed    0.03 sec\n2/5 Test #2: TenantPageTest.CreditDebitReportsPriorBalance .......   Passed    0.03 sec\n    Start 5: TenantPageTest.StalenessIsJudgedFromTheEpochStamp\n3/5 Test #3: TenantPageTest.SharedAcrossProcesses ................   Passed    0.03 sec\n4/5 Test #5: TenantPageTest.StalenessIsJudgedFromTheEpochStamp ...   Passed    0.02 sec\n5/5 Test #4: TenantPageTest.FutexWordWakesAWaiter ................   Passed    0.05 sec\n\n100% tests passed, 0 tests failed out of 5\n\nTotal Test time (real) =   0.08 sec\n",
+        "timed_out": false,
+        "wall_s": 0.229
+      },
+      "gcc-13": {
+        "exit_code": 0,
+        "ok": true,
+        "stderr_tail": "",
+        "stdout_tail": "Internal ctest changing into directory: /opt/tessera-build/gcc-13\nTest project /opt/tessera-build/gcc-13\n    Start 1: TenantPageTest.IdentifiesItself\n    Start 2: TenantPageTest.CreditDebitReportsPriorBalance\n    Start 3: TenantPageTest.SharedAcrossProcesses\n    Start 4: TenantPageTest.FutexWordWakesAWaiter\n1/5 Test #1: TenantPageTest.IdentifiesItself .....................   Passed    0.03 sec\n2/5 Test #2: TenantPageTest.CreditDebitReportsPriorBalance .......   Passed    0.02 sec\n    Start 5: TenantPageTest.StalenessIsJudgedFromTheEpochStamp\n3/5 Test #3: TenantPageTest.SharedAcrossProcesses ................   Passed    0.03 sec\n4/5 Test #5: TenantPageTest.StalenessIsJudgedFromTheEpochStamp ...   Passed    0.01 sec\n5/5 Test #4: TenantPageTest.FutexWordWakesAWaiter ................   Passed    0.04 sec\n\n100% tests passed, 0 tests failed out of 5\n\nTotal Test time (real) =   0.07 sec\n",
+        "timed_out": false,
+        "wall_s": 0.212
+      }
+    },
+    "wall_s": 0.441
+  },
+  "utc": "2026-09-19T22:08:33Z",
+  "wall_s_local": 5.438
+}

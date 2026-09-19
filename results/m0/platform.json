@@ -1,0 +1,471 @@
+{
+  "argv": [
+    "/root/.local/bin/modal",
+    "run",
+    "infra/modal_gpu.py",
+    "--action",
+    "platform_probe"
+  ],
+  "command": "TESSERA_GPU=L4 modal run infra/modal_gpu.py --action platform_probe",
+  "error": null,
+  "exit_code": 0,
+  "finished_utc": "2026-09-19T22:15:31Z",
+  "git": {
+    "branch": "main",
+    "commit": "a9bb6c371db1c99fe6555ef5dea50cd2d88b31a2",
+    "dirty": true,
+    "dirty_paths": [
+      "?? bench/",
+      "?? eval/",
+      "?? fake_driver/",
+      "?? infra/",
+      "?? results/m0/cpu_tests.json",
+      "?? results/m0/gpu_baseline.json",
+      "?? results/m0/platform.json",
+      "?? results/spend/",
+      "?? tests/fake_driver/"
+    ]
+  },
+  "gpu": {
+    "compute_mode": "Default",
+    "cuda_driver_version": 13000,
+    "cuda_runtime_version": null,
+    "cuda_runtime_version_torch": "12.8",
+    "driver_version": "580.95.05",
+    "model": "NVIDIA L4",
+    "uuid": "GPU-ca03fbdf-a2b9-9091-3006-d15c6dec9e47"
+  },
+  "image": {
+    "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+    "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+    "manifest": {
+      "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+      "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+      "built_at_utc": "2026-09-19T22:15:08Z",
+      "cuda_headers": {
+        "cuda_version": 12060,
+        "package_version": "12.6.77-1",
+        "path": "/opt/tessera-deps/cuda-12.6/x86_64-linux/include/cuda.h"
+      },
+      "kind": "tessera_image_manifest",
+      "os_release": "Ubuntu 22.04.5 LTS",
+      "paths": {
+        "bin_dir": "/opt/tessera-bin",
+        "build_dir": "/opt/tessera-build",
+        "build_trees": [
+          "clang-18",
+          "gcc-13"
+        ],
+        "deps": "/opt/tessera-deps",
+        "repo": "/opt/tessera",
+        "vector_add": "/opt/tessera-bin/vector_add"
+      },
+      "python_packages": {
+        "pinned_torch": "2.10.0",
+        "pinned_vllm_for_m1": "0.19.1",
+        "torch": "2.10.0+cu128",
+        "torch_cuda": "12.8",
+        "torch_git_version": "449b1768410104d3ed79d3bcfe4ba1d65c7f22c0"
+      },
+      "toolchain": {
+        "clang": {
+          "binary": "clang++-18",
+          "path": "/usr/bin/clang++-18",
+          "version_line": "Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)"
+        },
+        "cmake": {
+          "path": "/usr/local/bin/cmake",
+          "version_line": "cmake version 3.31.6"
+        },
+        "gcc": {
+          "binary": "g++-13",
+          "dumpfullversion": "13.4.0",
+          "path": "/usr/bin/g++-13",
+          "version_line": "g++-13 (Ubuntu 13.4.0-6ubuntu1~22~ppa2) 13.4.0"
+        },
+        "ninja": {
+          "path": "/usr/local/bin/ninja",
+          "version": "1.13.2.git.kitware.jobserver-pipe-1"
+        },
+        "nvcc": {
+          "path": "/usr/local/cuda/bin/nvcc",
+          "version": "Build cuda_12.6.r12.6/compiler.35059454_0"
+        },
+        "python": "3.11.5"
+      },
+      "versions_lock_verified_on": "2026-09-19"
+    }
+  },
+  "kind": "tessera_platform_probe_result",
+  "milestone": "M0",
+  "modal": {
+    "app_id": "ap-ewexEj0kt4fEpG1jHYEVSu",
+    "app_name": "tessera-m0",
+    "client_version": "1.5.5",
+    "detached": false,
+    "function": "platform_probe",
+    "gpu_requested": "L4",
+    "timeout_s": 600
+  },
+  "result": {
+    "compute_policy": {
+      "available": true,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "+-------------------------------------+\n| GPU compute policies:               |\n| GPU     Name           Value        |\n|=====================================|\n|   0   Timeslice       Default       |\n+-------------------------------------+\n"
+    },
+    "cupti_preflight": {
+      "command": [
+        "/usr/local/bin/python",
+        "/opt/tessera/eval/m0/torch_matmul_loop.py",
+        "--loop",
+        "control",
+        "--iters",
+        "5",
+        "--warmup",
+        "2"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "parsed": [
+        {
+          "cupti": {
+            "cupti_device_kernels": 5,
+            "cupti_device_memcpy": 0,
+            "cupti_device_memset": 0,
+            "cupti_driver_launch_calls": 0,
+            "cupti_graph_launches": 0,
+            "cupti_runtime_launch_calls": 5,
+            "cupti_total_trace_events": 93
+          },
+          "cupti_host_launch_calls": 5,
+          "cupti_host_matches_device": true,
+          "expected_kernels_per_iter": 1,
+          "failures": [],
+          "loop": "control",
+          "pass": true,
+          "seed": 20260919,
+          "sha256": {
+            "x": "456ed5d55897f40fa7b5bdda907f4d1d3344003d7ea7560d1d0909f2548db4c8"
+          },
+          "shapes": "1048576 elements fp32",
+          "shim": {
+            "shim_after": null,
+            "shim_before": null,
+            "shim_delta": null
+          },
+          "warmup_iters": 2,
+          "window_iters": 5
+        },
+        {
+          "allow_tf32_cudnn": false,
+          "allow_tf32_matmul": false,
+          "compute_capability": "8.9",
+          "cublas_workspace_config": ":4096:8",
+          "cudnn_version": 91002,
+          "deterministic_algorithms": true,
+          "device_name": "NVIDIA L4",
+          "float32_matmul_precision": "highest",
+          "kind": "torch_matmul_loop_summary",
+          "loops": [
+            {
+              "cupti": {
+                "cupti_device_kernels": 5,
+                "cupti_device_memcpy": 0,
+                "cupti_device_memset": 0,
+                "cupti_driver_launch_calls": 0,
+                "cupti_graph_launches": 0,
+                "cupti_runtime_launch_calls": 5,
+                "cupti_total_trace_events": 93
+              },
+              "cupti_host_launch_calls": 5,
+              "cupti_host_matches_device": true,
+              "expected_kernels_per_iter": 1,
+              "failures": [],
+              "loop": "control",
+              "pass": true,
+              "seed": 20260919,
+              "sha256": {
+                "x": "456ed5d55897f40fa7b5bdda907f4d1d3344003d7ea7560d1d0909f2548db4c8"
+              },
+              "shapes": "1048576 elements fp32",
+              "shim": {
+                "shim_after": null,
+                "shim_before": null,
+                "shim_delta": null
+              },
+              "warmup_iters": 2,
+              "window_iters": 5
+            }
+          ],
+          "multiprocessor_count": 58,
+          "pass": true,
+          "shim_abi_version": null,
+          "tf32_setter_notes": {
+            "torch.backends.cuda.matmul.allow_tf32": "set",
+            "torch.backends.cudnn.allow_tf32": "set"
+          },
+          "torch_cuda_version": "12.8",
+          "torch_version": "2.10.0+cu128",
+          "with_shim": false
+        }
+      ],
+      "stderr_tail": "/usr/local/lib/python3.11/site-packages/torch/profiler/profiler.py:217: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.\n  _warn_once(\n",
+      "wall_s": 5.081
+    },
+    "finished_utc": "2026-09-19T22:15:31Z",
+    "gpu_identity": {
+      "compute_mode": "Default",
+      "cuda_driver_version": 13000,
+      "driver_probe": {
+        "cuDeviceGetCount_rc": 0,
+        "cuDriverGetVersion_rc": 0,
+        "cuInit_rc": 0,
+        "cuda_driver_version": 13000,
+        "device_count": 1,
+        "devices": [
+          {
+            "async_engine_count": 2,
+            "clock_rate_khz": 2040000,
+            "compute_capability_major": 8,
+            "compute_capability_minor": 9,
+            "compute_mode": 0,
+            "multiprocessor_count": 58,
+            "name": "NVIDIA L4",
+            "ordinal": 0
+          }
+        ],
+        "libcuda_loadable": true
+      },
+      "driver_version": "580.95.05",
+      "gpu_model": "NVIDIA L4",
+      "gpu_requested": "L4",
+      "gpu_uuid": "GPU-ca03fbdf-a2b9-9091-3006-d15c6dec9e47",
+      "memory_total": "23034 MiB",
+      "nvidia_smi_exit_code": 0,
+      "nvidia_smi_query": "0, NVIDIA L4, GPU-ca03fbdf-a2b9-9091-3006-d15c6dec9e47, 580.95.05, Default, 23034 MiB"
+    },
+    "image_manifest": {
+      "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+      "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+      "built_at_utc": "2026-09-19T22:15:08Z",
+      "cuda_headers": {
+        "cuda_version": 12060,
+        "package_version": "12.6.77-1",
+        "path": "/opt/tessera-deps/cuda-12.6/x86_64-linux/include/cuda.h"
+      },
+      "kind": "tessera_image_manifest",
+      "os_release": "Ubuntu 22.04.5 LTS",
+      "paths": {
+        "bin_dir": "/opt/tessera-bin",
+        "build_dir": "/opt/tessera-build",
+        "build_trees": [
+          "clang-18",
+          "gcc-13"
+        ],
+        "deps": "/opt/tessera-deps",
+        "repo": "/opt/tessera",
+        "vector_add": "/opt/tessera-bin/vector_add"
+      },
+      "python_packages": {
+        "pinned_torch": "2.10.0",
+        "pinned_vllm_for_m1": "0.19.1",
+        "torch": "2.10.0+cu128",
+        "torch_cuda": "12.8",
+        "torch_git_version": "449b1768410104d3ed79d3bcfe4ba1d65c7f22c0"
+      },
+      "toolchain": {
+        "clang": {
+          "binary": "clang++-18",
+          "path": "/usr/bin/clang++-18",
+          "version_line": "Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)"
+        },
+        "cmake": {
+          "path": "/usr/local/bin/cmake",
+          "version_line": "cmake version 3.31.6"
+        },
+        "gcc": {
+          "binary": "g++-13",
+          "dumpfullversion": "13.4.0",
+          "path": "/usr/bin/g++-13",
+          "version_line": "g++-13 (Ubuntu 13.4.0-6ubuntu1~22~ppa2) 13.4.0"
+        },
+        "ninja": {
+          "path": "/usr/local/bin/ninja",
+          "version": "1.13.2.git.kitware.jobserver-pipe-1"
+        },
+        "nvcc": {
+          "path": "/usr/local/cuda/bin/nvcc",
+          "version": "Build cuda_12.6.r12.6/compiler.35059454_0"
+        },
+        "python": "3.11.5"
+      },
+      "versions_lock_verified_on": "2026-09-19"
+    },
+    "kind": "platform_probe",
+    "mps": {
+      "client_run": {
+        "exit_code": 0,
+        "ok": true,
+        "parsed": [
+          {
+            "blocks_per_chunk": 256,
+            "chunks": 16,
+            "compute_capability": "8.9",
+            "cuda_driver_version": 13000,
+            "cuda_runtime_version": 12060,
+            "device_name": "NVIDIA L4",
+            "elements": 1048576,
+            "kernel_launches": 16,
+            "mismatches": 0,
+            "multiprocessor_count": 28,
+            "sample": "vector_add",
+            "seed": 20260919,
+            "sha256": "63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676",
+            "threads_per_block": 256
+          }
+        ],
+        "stderr_tail": "",
+        "stdout_tail": "TESSERA_JSON {\"sample\":\"vector_add\",\"elements\":1048576,\"chunks\":16,\"threads_per_block\":256,\"blocks_per_chunk\":256,\"seed\":20260919,\"kernel_launches\":16,\"sha256\":\"63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676\",\"mismatches\":0,\"device_name\":\"NVIDIA L4\",\"compute_capability\":\"8.9\",\"multiprocessor_count\":28,\"cuda_runtime_version\":12060,\"cuda_driver_version\":13000}\n"
+      },
+      "control_binary": "/usr/bin/nvidia-cuda-mps-control",
+      "control_binary_present": true,
+      "env": {
+        "CUDA_MPS_LOG_DIRECTORY": "/tmp/tessera-mps/log",
+        "CUDA_MPS_PIPE_DIRECTORY": "/tmp/tessera-mps/pipe"
+      },
+      "env_knobs": {
+        "CUDA_MPS_ACTIVE_THREAD_PERCENTAGE": {
+          "evidence": "bench/samples/vector_add reports the device's multiProcessorCount; run as an MPS client with the percentage set it sees a reduced count, which is the cap taking effect. null means there was no MPS server to attach to.",
+          "honoured": true,
+          "set_to": "50",
+          "sm_count_seen_by_driver": 58,
+          "sm_count_seen_by_mps_client": 28
+        },
+        "CUDA_MPS_LOG_DIRECTORY": {
+          "evidence": "the control daemon wrote control.log there",
+          "honoured": true,
+          "set_to": "/tmp/tessera-mps/log"
+        },
+        "CUDA_MPS_PIPE_DIRECTORY": {
+          "evidence": "the control daemon created its socket in that directory",
+          "honoured": true,
+          "set_to": "/tmp/tessera-mps/pipe"
+        }
+      },
+      "get_server_list": {
+        "cmd": [
+          "bash",
+          "-c",
+          "echo get_server_list | /usr/bin/nvidia-cuda-mps-control"
+        ],
+        "exit_code": 0,
+        "ok": true,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_s": 0.022
+      },
+      "get_server_list_after_client": {
+        "cmd": [
+          "bash",
+          "-c",
+          "echo get_server_list | /usr/bin/nvidia-cuda-mps-control"
+        ],
+        "exit_code": 0,
+        "ok": true,
+        "stderr": "",
+        "stdout": "43\n",
+        "timed_out": false,
+        "wall_s": 0.025
+      },
+      "logs": {
+        "control.log": "[2026-09-19 22:15:25.813 Control    35] Starting control daemon using socket /tmp/tessera-mps/pipe/control\n[2026-09-19 22:15:25.813 Control    35] To connect CUDA applications to this daemon, set env CUDA_MPS_PIPE_DIRECTORY=/tmp/tessera-mps/pipe\n[2026-09-19 22:15:25.814 Control    35] CUDA MPS Control binary version: 13000\n[2026-09-19 22:15:25.834 Control    35] Accepting connection...\n[2026-09-19 22:15:25.834 Control    35] NEW UI\n[2026-09-19 22:15:25.836 Control    35] Cmd:get_server_list\n[2026-09-19 22:15:25.836 Control    35] UI closed\n[2026-09-19 22:15:25.854 Control    35] Accepting connection...\n[2026-09-19 22:15:25.854 Control    35] Unable to read new connection type information\n[2026-09-19 22:15:25.854 Control    35] Accepting connection...\n[2026-09-19 22:15:25.854 Control    35] NEW CLIENT 41 from user 0: Server is not ready, push client to pending list\n[2026-09-19 22:15:25.856 Control    43] Starting new server 43 for user 0\n[2026-09-19 22:15:25.869 Control    35] Accepting connection...\n[2026-09-19 22:15:26.016 Control    35] NEW SERVER 43: Ready\n[2026-09-19 22:15:26.055 Control    35] Accepting connection...\n[2026-09-19 22:15:26.055 Control    35] NEW CLIENT 41 from user 0: Server already exists\n[2026-09-19 22:15:26.286 Control    35] Accepting connection...\n[2026-09-19 22:15:26.286 Control    35] NEW UI\n[2026-09-19 22:15:26.287 Control    35] Cmd:get_server_list\n[2026-09-19 22:15:26.287 Control    35] 43\n[2026-09-19 22:15:26.287 Control    35] UI closed\n[2026-09-19 22:15:26.307 Control    35] Accepting connection...\n[2026-09-19 22:15:26.307 Control    35] NEW UI\n[2026-09-19 22:15:26.308 Control    35] Cmd:quit\n[2026-09-19 22:15:26.308 Control    35] Try shutting down server 43, backoff is disabled\n[2026-09-19 22:15:26.339 Control    35] Server 43 exited with status 0\n[2026-09-19 22:15:26.340 Control    35] Exit with status 0\n",
+        "server.log": "[2026-09-19 22:15:25.868 Other    43] Startup\n[2026-09-19 22:15:25.868 Other    43] Connecting to control daemon on socket: /tmp/tessera-mps/pipe/control\n[2026-09-19 22:15:25.869 Other    43] Initializing server process\n[2026-09-19 22:15:25.894 Server    43] Creating server context on device 0 (NVIDIA L4)\n[2026-09-19 22:15:26.015 Server    43] Created anonymous shared memory region mps.shm.0.43\n[2026-09-19 22:15:26.016 Server    43] CUDA MPS Server for Linux/Unix. Binary version: 13000\n[2026-09-19 22:15:26.016 Server    43] Display Driver version: 580\n[2026-09-19 22:15:26.016 Server    43] Active Threads Percentage set to 100.0\n[2026-09-19 22:15:26.016 Server    43] Server Priority set to 0\n[2026-09-19 22:15:26.016 Server    43] Server has started\n[2026-09-19 22:15:26.016 Server    43] Received new client request for {PID: 0, Context ID: 0}\n[2026-09-19 22:15:26.017 Server    43] Client {PID: 41, Context ID: 0} connected\n[2026-09-19 22:15:26.017 Server    43] Creating worker thread for client {PID: 41, Context ID: 0}\n[2026-09-19 22:15:26.055 Server    43] Received new client request for {PID: 41, Context ID: 0}\n[2026-09-19 22:15:26.055 Server    43] Client {PID: 41, Context ID: 1} connected\n[2026-09-19 22:15:26.056 Server    43] Creating worker thread for client {PID: 41, Context ID: 1}\n[2026-09-19 22:15:26.056 Server    43] Device NVIDIA L4 (uuid GPU-ca03fbdf-a2b9-9091-3006-d15c6dec9e47) is associated\n[2026-09-19 22:15:26.056 Server    43] Status of client {PID: 41, Context ID: 1} is ACTIVE\n[2026-09-19 22:15:26.199 Server    43] Server failed to recevie command with status 806, assuming client {PID: 41, Context ID: 0} exit\n[2026-09-19 22:15:26.199 Server    43] Client process 41 disconnected\n[2026-09-19 22:15:26.213 Server    43] Server failed to recevie command with status 806, assuming client {PID: 41, Context ID: 1} exit\n[2026-09-19 22:15:26.213 Server    43] Client {PID: 41, Context ID: 1} exiting. Number of active client contexts is 0.\n[2026-09-19 22:15:26.308 Server    43] Server has been notified to shutdown\n[2026-09-19 22:15:26.308 Server    43] Waiting for current clients to finish\n[2026-09-19 22:15:26.308 Server    43] Exiting\n"
+      },
+      "pipe_dir_contents": [
+        "control",
+        "control_lock",
+        "control_privileged"
+      ],
+      "quit": {
+        "cmd": [
+          "bash",
+          "-c",
+          "echo quit | /usr/bin/nvidia-cuda-mps-control"
+        ],
+        "exit_code": 0,
+        "ok": true,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_s": 0.053
+      },
+      "server_binary": "/usr/bin/nvidia-cuda-mps-server",
+      "start": {
+        "cmd": [
+          "/usr/bin/nvidia-cuda-mps-control",
+          "-d"
+        ],
+        "exit_code": 0,
+        "ok": true,
+        "stderr": "",
+        "stdout": "",
+        "timed_out": false,
+        "wall_s": 0.051
+      },
+      "starts": true
+    },
+    "nvidia_smi": {
+      "cmd": [
+        "nvidia-smi"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "",
+      "stdout": "Sat Sep 19 22:15:22 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.95.05              Driver Version: 580.95.05      CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:AE:00.0 Off |                    0 |\n| N/A   51C    P0             20W /   72W |       3MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+\n",
+      "timed_out": false,
+      "wall_s": 0.265
+    },
+    "nvidia_smi_compute": {
+      "cmd": [
+        "nvidia-smi",
+        "-q",
+        "-d",
+        "COMPUTE"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "",
+      "stdout": "\n==============NVSMI LOG==============\n\nTimestamp                                 : Sat Sep 19 22:15:22 2026\nDriver Version                            : 580.95.05\nCUDA Version                              : 13.0\n\nAttached GPUs                             : 1\nGPU 00000000:AE:00.0\n    Compute Mode                          : Default\n\n",
+      "timed_out": false,
+      "wall_s": 0.03
+    },
+    "pass": true,
+    "privileges": {
+      "cap_eff": "00000000a80405fb",
+      "dev_nvidia_nodes": [
+        "nvidia-uvm",
+        "nvidia-uvm-tools",
+        "nvidia4",
+        "nvidiactl"
+      ],
+      "euid": 0
+    },
+    "sm_count": 58,
+    "started_utc": "2026-09-19T22:15:22Z",
+    "torch": {
+      "compute_capability": "8.9",
+      "cuda_available": true,
+      "cudnn_version": 91002,
+      "device_name": "NVIDIA L4",
+      "multiprocessor_count": 58,
+      "torch_cuda_version": "12.8",
+      "torch_version": "2.10.0+cu128",
+      "total_memory_bytes": 23659151360
+    },
+    "wall_s": 9.007
+  },
+  "utc": "2026-09-19T22:15:17Z",
+  "wall_s_local": 14.242
+}
