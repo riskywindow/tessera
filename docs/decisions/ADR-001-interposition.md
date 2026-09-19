@@ -97,6 +97,32 @@ of — the shim returns the real pointer unchanged and increments a
 `bypassed_lookups` counter. That counter is a first-class signal: it is how H1
 distinguishes "we captured everything" from "we captured what we knew about".
 
+## Measured, not assumed
+
+The loader behaviour this decision rests on was measured on the dev host with
+three stand-in libraries and no GPU, by `scripts/loader_semantics_probe.sh`
+(artifact: `results/m0/loader_semantics.json`). Four results:
+
+| Question | Masquerade | `LD_PRELOAD` |
+|---|---|---|
+| `DT_NEEDED libcuda.so.1` call intercepted | yes | yes |
+| `dlopen("libcuda.so.1")` + `dlsym` intercepted | **yes** | **no — reached the real library directly** |
+| Real library loadable by absolute path without self-recursion | yes | yes |
+| `dlsym` for a symbol the shim does not define | **not found** | found |
+
+Row 2 is the empirical reason masquerade is primary: under `LD_PRELOAD`, the
+`dlopen`+`dlsym` path — Triton's path — goes straight past the shim, which is
+what a `dlsym` hook has to repair. Row 4 is the empirical reason the shim must
+forward every exported symbol rather than only the hooked ones: when the shim
+*is* the handle, a symbol it does not define does not exist as far as the
+application is concerned. A self-load guard was also exercised: pointing
+`TESSERA_REAL_LIBCUDA` at the shim itself exits through the guard instead of
+recursing.
+
+These are properties of glibc's loader, not of CUDA, so they hold before any
+GPU is involved; H1 still has to confirm that the driver paths a real cudart
+takes are the ones measured here.
+
 ## Alternatives rejected
 
 - **CUPTI callbacks.** The profiling interface can observe and even block at API

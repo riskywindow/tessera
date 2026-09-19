@@ -1,0 +1,30 @@
+{
+  "probe": "loader_semantics",
+  "utc": "2026-09-19T21:44:42Z",
+  "host": {
+    "uname": "Linux 7.0.0-29-generic x86_64",
+    "libc": "ldd (Ubuntu GLIBC 2.43-2ubuntu2.4) 2.43",
+    "cc": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+    "git_commit": "0f1350b745e62c440ff71966d9d221ed137793a7"
+  },
+  "command": "scripts/loader_semantics_probe.sh --json /tmp/tessera-loader/loader_semantics.json",
+  "masquerade": {
+    "paths_intercepted": 2,
+    "paths_tested": 2,
+    "reached_real_library": true,
+    "unhooked_symbol_via_dlsym": "notfound"
+  },
+  "ld_preload": {
+    "paths_intercepted": 1,
+    "paths_tested": 2,
+    "unhooked_symbol_via_dlsym": "found"
+  },
+  "self_load_guard_exit_code": 4,
+  "conclusions": [
+    "Masquerading as libcuda.so.1 intercepts both DT_NEEDED linkage and dlopen(\"libcuda.so.1\")+dlsym.",
+    "LD_PRELOAD intercepts DT_NEEDED linkage only; the dlopen+dlsym path reaches the real library directly, which is why that strategy needs a dlsym hook.",
+    "A masquerading library can load the real library by absolute path without the loader returning itself.",
+    "dlsym on the masquerading handle cannot find a symbol the shim does not define, so the shim must forward every exported driver symbol."
+  ],
+  "pass": true
+}
