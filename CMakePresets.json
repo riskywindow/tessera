@@ -1,0 +1,127 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 28, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "TESSERA_BUILD_TESTS": "ON",
+        "TESSERA_WERROR": "ON"
+      }
+    },
+    {
+      "name": "gcc",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": { "CMAKE_C_COMPILER": "gcc", "CMAKE_CXX_COMPILER": "g++" }
+    },
+    {
+      "name": "clang",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": { "CMAKE_C_COMPILER": "clang", "CMAKE_CXX_COMPILER": "clang++" }
+    },
+    {
+      "name": "gcc-debug",
+      "inherits": "gcc",
+      "displayName": "gcc, Debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "gcc-release",
+      "inherits": "gcc",
+      "displayName": "gcc, Release",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "clang-debug",
+      "inherits": "clang",
+      "displayName": "clang, Debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "clang-release",
+      "inherits": "clang",
+      "displayName": "clang, Release",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "gcc-asan",
+      "inherits": "gcc",
+      "displayName": "gcc, ASan + UBSan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "TESSERA_SANITIZE": "address;undefined"
+      }
+    },
+    {
+      "name": "clang-asan",
+      "inherits": "clang",
+      "displayName": "clang, ASan + UBSan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "TESSERA_SANITIZE": "address;undefined"
+      }
+    },
+    {
+      "name": "clang-tsan",
+      "inherits": "clang",
+      "displayName": "clang, TSan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "TESSERA_SANITIZE": "thread"
+      }
+    },
+    {
+      "name": "arm64-gcc",
+      "inherits": "base",
+      "displayName": "arm64 cross (gcc), tests under qemu",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/aarch64-gcc.cmake"
+      }
+    },
+    {
+      "name": "arm64-clang",
+      "inherits": "base",
+      "displayName": "arm64 cross (clang), tests under qemu",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/aarch64-clang.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "gcc-debug", "configurePreset": "gcc-debug", "jobs": 4 },
+    { "name": "gcc-release", "configurePreset": "gcc-release", "jobs": 4 },
+    { "name": "clang-debug", "configurePreset": "clang-debug", "jobs": 4 },
+    { "name": "clang-release", "configurePreset": "clang-release", "jobs": 4 },
+    { "name": "gcc-asan", "configurePreset": "gcc-asan", "jobs": 4 },
+    { "name": "clang-asan", "configurePreset": "clang-asan", "jobs": 4 },
+    { "name": "clang-tsan", "configurePreset": "clang-tsan", "jobs": 4 },
+    { "name": "arm64-gcc", "configurePreset": "arm64-gcc", "jobs": 4 },
+    { "name": "arm64-clang", "configurePreset": "arm64-clang", "jobs": 4 }
+  ],
+  "testPresets": [
+    {
+      "name": "cpu-base",
+      "hidden": true,
+      "output": { "outputOnFailure": true },
+      "execution": { "jobs": 4, "stopOnFailure": false },
+      "filter": { "exclude": { "label": "gpu" } }
+    },
+    { "name": "gcc-debug", "inherits": "cpu-base", "configurePreset": "gcc-debug" },
+    { "name": "gcc-release", "inherits": "cpu-base", "configurePreset": "gcc-release" },
+    { "name": "clang-debug", "inherits": "cpu-base", "configurePreset": "clang-debug" },
+    { "name": "clang-release", "inherits": "cpu-base", "configurePreset": "clang-release" },
+    { "name": "gcc-asan", "inherits": "cpu-base", "configurePreset": "gcc-asan" },
+    { "name": "clang-asan", "inherits": "cpu-base", "configurePreset": "clang-asan" },
+    { "name": "clang-tsan", "inherits": "cpu-base", "configurePreset": "clang-tsan" },
+    { "name": "arm64-gcc", "inherits": "cpu-base", "configurePreset": "arm64-gcc" },
+    { "name": "arm64-clang", "inherits": "cpu-base", "configurePreset": "arm64-clang" }
+  ]
+}
