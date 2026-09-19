@@ -1,0 +1,20 @@
+/* libtessera.so's exported surface for the LD_PRELOAD strategy.
+ *
+ * Identical to exports.map, plus dlsym and dlvsym: interposing on them is the
+ * whole point of the preload build (ADR-001, path 2), and a symbol that is
+ * local cannot interpose on anything.
+ *
+ * They are deliberately NOT in exports.map. The masquerading copy is loaded as
+ * libcuda.so.1, which lands in the application's global scope; a libcuda.so.1
+ * that also exported dlsym would interpose on every dlsym call in the process
+ * for no reason, and interposition that is not needed is a liability.
+ */
+{
+  global:
+    cu*;
+    tessera_*;
+    dlsym;
+    dlvsym;
+  local:
+    *;
+};

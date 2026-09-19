@@ -1,0 +1,22 @@
+/* libtessera's exported surface.
+ *
+ * Only the driver's own namespace and Tessera's observability ABI leave the
+ * library; the build compiles with -fvisibility=hidden and everything else is
+ * local. `cu*` covers both the hooked wrappers and the generated forwarding
+ * trampolines, which together are exactly the driver's export list.
+ *
+ * The version node is anonymous, so the exported symbols carry no version tag.
+ * The real libcuda.so.1 has none either, and a binary linked against the
+ * masquerading copy must be able to run afterwards against the real driver, or
+ * against the fake, without carrying a version dependency it cannot satisfy.
+ *
+ * The preload build uses exports_preload.map instead, which is this list plus
+ * the two dlsym interposers.
+ */
+{
+  global:
+    cu*;
+    tessera_*;
+  local:
+    *;
+};

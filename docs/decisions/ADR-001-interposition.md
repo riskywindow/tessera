@@ -123,6 +123,37 @@ These are properties of glibc's loader, not of CUDA, so they hold before any
 GPU is involved; H1 still has to confirm that the driver paths a real cudart
 takes are the ones measured here.
 
+## Corrections found while implementing (WP-0.5)
+
+Two recipes above were wrong as written. Both were found by building the thing,
+and both are corrected here rather than quietly in the code.
+
+**1. The `dlsym` bootstrap recurses.** This ADR said to obtain the real `dlsym`
+with `dlvsym(RTLD_NEXT, "dlsym", "GLIBC_2.34")`. In the preload build the shim
+also interposes `dlvsym`, so that bootstrap call binds to the shim's own
+`dlvsym` and recurses. This was reproduced in a two-file experiment before any
+shim code was written. The shim instead finds the real `dlvsym` by walking the
+loader's link map (`_r_debug.r_map`, identifying itself through `_DYNAMIC`) with
+a GNU-hash lookup, and then performs exactly the versioned lookup described
+above through that. The intent is unchanged; only the way it is reached is.
+
+**2. "The driver returns its own address" is not a law.** The identity check
+assumes that when the shim forwards a `cuGetProcAddress` request, the pointer
+that comes back belongs to the real driver. Under masquerade, the shim *is* the
+object named `libcuda.so.1` and therefore sits in the application's global
+scope, so the real driver's references to its own exported symbols resolve to
+the shim unless that driver was linked `-Bsymbolic`. This was measured with the
+fake driver: asked for its own `cuLaunchKernel`, it returned *the shim's*
+wrapper. The shim now recognises that case and passes the pointer through,
+which is correct — the caller still lands in the wrapper.
+
+The residual risk is the third case: a driver that returns an internal address
+no exported name resolves to. The shim cannot wrap what it cannot identify, so
+it forwards the real pointer and increments `bypassed_lookups`, losing that hook
+for the life of the process. That counter is therefore not a diagnostic
+nicety: it is the difference between "we captured everything" and "we captured
+what we recognised", and H1 has to read it on real hardware (risk R-21).
+
 ## Alternatives rejected
 
 - **CUPTI callbacks.** The profiling interface can observe and even block at API
