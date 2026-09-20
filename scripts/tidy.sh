@@ -60,6 +60,12 @@ for entry in entries:
     rel = path[len(root) + 1 :]
     if rel.startswith("build/") or "/_deps/" in path:
         continue
+    # clang-tidy is a C/C++ front end. Assembly translation units (the shim's
+    # per-architecture trampolines) are in the compile database because they
+    # are compiled, but handing one to clang-tidy makes it parse assembly as
+    # C++ and report a syntax error at the first directive.
+    if path.endswith((".S", ".s", ".asm")):
+        continue
     if path not in seen:
         seen.add(path)
         print(path)
