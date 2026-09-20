@@ -155,26 +155,59 @@ std::uint32_t lookup_sysv(const Dynamic& d, const char* want) noexcept {
   return 0;
 }
 
+// Does this link-map entry look like the C library? The only symbols this file
+// ever looks for (dlsym, dlvsym) live there, which lets the riskier search
+// below be confined to one well-formed object.
+bool looks_like_libc(const link_map* map) noexcept {
+  const char* name = map->l_name;
+  if (name == nullptr) {
+    return false;
+  }
+  for (const char* p = name; *p != '\0'; ++p) {
+    if (*p == '/' && (str_equal(p, "/libc.so.6") || str_equal(p, "/libc.so"))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // The first definition of `name` in link-map order, excluding this object.
 // This mirrors what the loader's global scope would have given us if we were
 // not in it ourselves.
+//
+// Only the GNU-hash path runs over arbitrary objects. The SysV fallback is a
+// LINEAR scan that dereferences every entry of an object's symbol table, so it
+// turns any mistake in the DT_* pointers above into a wild read -- and the
+// bias rule in read_dynamic() is a heuristic, not a guarantee (R-23). That is
+// not hypothetical: on an L4 container this crashed while walking the objects
+// loaded alongside the real NVIDIA driver, with a stack ending in lookup_sysv,
+// while every CPU test passed because every object there carries a GNU hash.
+// The fallback is therefore confined to the one object whose symbols are
+// actually wanted. An object with neither hash table is skipped rather than
+// scanned.
 ElfW(Addr) find_elsewhere(const char* name) noexcept {
-  for (const link_map* map = _r_debug.r_map; map != nullptr; map = map->l_next) {
-    if (map->l_ld == _DYNAMIC) {
-      continue;  // ourselves: the object whose interposition we are escaping
-    }
-    const Dynamic d = read_dynamic(map->l_ld, map->l_addr);
-    if (d.strtab == nullptr || d.symtab == nullptr) {
-      continue;
-    }
-    std::uint32_t index = 0;
-    if (d.gnu_hash_tab != nullptr) {
-      index = lookup_gnu(d, name);
-    } else if (d.sysv_hash_tab != nullptr) {
-      index = lookup_sysv(d, name);
-    }
-    if (index != 0) {
-      return map->l_addr + d.symtab[index].st_value;
+  for (int pass = 0; pass < 2; ++pass) {
+    for (const link_map* map = _r_debug.r_map; map != nullptr; map = map->l_next) {
+      if (map->l_ld == _DYNAMIC) {
+        continue;  // ourselves: the object whose interposition we are escaping
+      }
+      const bool is_libc = looks_like_libc(map);
+      if (pass == 0 && !is_libc) {
+        continue;  // libc first: it is where dlsym and dlvsym live
+      }
+      const Dynamic d = read_dynamic(map->l_ld, map->l_addr);
+      if (d.strtab == nullptr || d.symtab == nullptr) {
+        continue;
+      }
+      std::uint32_t index = 0;
+      if (d.gnu_hash_tab != nullptr) {
+        index = lookup_gnu(d, name);
+      } else if (d.sysv_hash_tab != nullptr && is_libc) {
+        index = lookup_sysv(d, name);
+      }
+      if (index != 0) {
+        return map->l_addr + d.symtab[index].st_value;
+      }
     }
   }
   return 0;

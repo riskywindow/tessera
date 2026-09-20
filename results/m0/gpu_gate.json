@@ -1,0 +1,726 @@
+{
+  "argv": [
+    "/root/.local/bin/modal",
+    "run",
+    "infra/modal_gpu.py",
+    "--action",
+    "m0-gate",
+    "--with-shim"
+  ],
+  "command": "TESSERA_GPU=L4 modal run infra/modal_gpu.py --action m0_gate --with-shim --iters 200 --warmup 20",
+  "error": null,
+  "exit_code": 0,
+  "finished_utc": "2026-09-20T02:29:35Z",
+  "git": {
+    "branch": "main",
+    "commit": "d41ff9e7934f28e12c297ecf000f8ec35d0676a0",
+    "dirty": true,
+    "dirty_paths": [
+      "M infra/modal_gpu.py",
+      " M results/spend/ledger.jsonl",
+      " M shim/src/native_dlsym.cc",
+      "?? results/m0/gpu_gate.json",
+      "?? results/m0/local_matrix.json",
+      "?? results/m0/shim_diag.json"
+    ]
+  },
+  "gpu": {
+    "compute_mode": "Default",
+    "cuda_driver_version": 13000,
+    "cuda_runtime_version": 12060,
+    "cuda_runtime_version_torch": "12.8",
+    "driver_version": "580.95.05",
+    "model": "NVIDIA L4",
+    "uuid": "GPU-e6504b85-0f78-410c-a60a-9f79df7673c1"
+  },
+  "image": {
+    "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+    "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+    "manifest": {
+      "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+      "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+      "built_at_utc": "2026-09-20T02:29:07Z",
+      "cuda_headers": {
+        "cuda_version": 12060,
+        "package_version": "12.6.77-1",
+        "path": "/opt/tessera-deps/cuda-12.6/x86_64-linux/include/cuda.h"
+      },
+      "kind": "tessera_image_manifest",
+      "os_release": "Ubuntu 22.04.5 LTS",
+      "paths": {
+        "bin_dir": "/opt/tessera-bin",
+        "build_dir": "/opt/tessera-build",
+        "build_trees": [
+          "clang-18",
+          "gcc-13"
+        ],
+        "deps": "/opt/tessera-deps",
+        "repo": "/opt/tessera",
+        "vector_add": "/opt/tessera-bin/vector_add"
+      },
+      "python_packages": {
+        "pinned_torch": "2.10.0",
+        "pinned_vllm_for_m1": "0.19.1",
+        "torch": "2.10.0+cu128",
+        "torch_cuda": "12.8",
+        "torch_git_version": "449b1768410104d3ed79d3bcfe4ba1d65c7f22c0"
+      },
+      "toolchain": {
+        "clang": {
+          "binary": "clang++-18",
+          "path": "/usr/bin/clang++-18",
+          "version_line": "Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)"
+        },
+        "cmake": {
+          "path": "/usr/local/bin/cmake",
+          "version_line": "cmake version 3.31.6"
+        },
+        "gcc": {
+          "binary": "g++-13",
+          "dumpfullversion": "13.4.0",
+          "path": "/usr/bin/g++-13",
+          "version_line": "g++-13 (Ubuntu 13.4.0-6ubuntu1~22~ppa2) 13.4.0"
+        },
+        "ninja": {
+          "path": "/usr/local/bin/ninja",
+          "version": "1.13.2.git.kitware.jobserver-pipe-1"
+        },
+        "nvcc": {
+          "path": "/usr/local/cuda/bin/nvcc",
+          "version": "Build cuda_12.6.r12.6/compiler.35059454_0"
+        },
+        "python": "3.11.5"
+      },
+      "versions_lock_verified_on": "2026-09-19"
+    }
+  },
+  "kind": "tessera_m0_gate_result",
+  "milestone": "M0",
+  "modal": {
+    "app_id": "ap-9D2TJMQgK89q7GCVRqKpzw",
+    "app_name": "tessera-m0",
+    "client_version": "1.5.5",
+    "detached": false,
+    "function": "m0_gate",
+    "gpu_requested": "L4",
+    "timeout_s": 1200
+  },
+  "result": {
+    "baseline": {
+      "torch_matmul_loop": {
+        "command": [
+          "/usr/local/bin/python",
+          "/opt/tessera/eval/m0/torch_matmul_loop.py",
+          "--loop",
+          "both",
+          "--iters",
+          "200",
+          "--warmup",
+          "20"
+        ],
+        "exit_code": 0,
+        "parsed": [
+          {
+            "cupti": {
+              "cupti_device_kernels": 400,
+              "cupti_device_memcpy": 0,
+              "cupti_device_memset": 0,
+              "cupti_driver_launch_calls": 200,
+              "cupti_graph_launches": 0,
+              "cupti_runtime_launch_calls": 200,
+              "cupti_total_trace_events": 2268
+            },
+            "cupti_host_launch_calls": 400,
+            "cupti_host_matches_device": true,
+            "expected_kernels_per_iter": null,
+            "failures": [],
+            "loop": "gemm",
+            "pass": true,
+            "seed": 20260919,
+            "sha256": {
+              "a": "30a6ca9f2b189e1e9f44d5b6aa418493642676e75fe6c8ae5afd8e097c20cbb5",
+              "b": "c6080ce9b562f16604b6f41b5f2ab8f8c61b8cc8a624c058f19b45b6acf8d082",
+              "c": "91b22fae71dbb1941da7c55927493036ef46ce54276b05bc6741973343b99631"
+            },
+            "shapes": "512x512 @ 512x512 fp32",
+            "shim": {
+              "shim_after": null,
+              "shim_before": null,
+              "shim_delta": null
+            },
+            "warmup_iters": 20,
+            "window_iters": 200
+          },
+          {
+            "cupti": {
+              "cupti_device_kernels": 200,
+              "cupti_device_memcpy": 0,
+              "cupti_device_memset": 0,
+              "cupti_driver_launch_calls": 0,
+              "cupti_graph_launches": 0,
+              "cupti_runtime_launch_calls": 200,
+              "cupti_total_trace_events": 1068
+            },
+            "cupti_host_launch_calls": 200,
+            "cupti_host_matches_device": true,
+            "expected_kernels_per_iter": 1,
+            "failures": [],
+            "loop": "control",
+            "pass": true,
+            "seed": 20260919,
+            "sha256": {
+              "x": "5ea09ce323d89d63745d005a42ab5648d1c88e916dd6d1c356709c0cdb035e2f"
+            },
+            "shapes": "1048576 elements fp32",
+            "shim": {
+              "shim_after": null,
+              "shim_before": null,
+              "shim_delta": null
+            },
+            "warmup_iters": 20,
+            "window_iters": 200
+          },
+          {
+            "allow_tf32_cudnn": false,
+            "allow_tf32_matmul": false,
+            "compute_capability": "8.9",
+            "cublas_workspace_config": ":4096:8",
+            "cudnn_version": 91002,
+            "deterministic_algorithms": true,
+            "device_name": "NVIDIA L4",
+            "float32_matmul_precision": "highest",
+            "kind": "torch_matmul_loop_summary",
+            "loops": [
+              {
+                "cupti": {
+                  "cupti_device_kernels": 400,
+                  "cupti_device_memcpy": 0,
+                  "cupti_device_memset": 0,
+                  "cupti_driver_launch_calls": 200,
+                  "cupti_graph_launches": 0,
+                  "cupti_runtime_launch_calls": 200,
+                  "cupti_total_trace_events": 2268
+                },
+                "cupti_host_launch_calls": 400,
+                "cupti_host_matches_device": true,
+                "expected_kernels_per_iter": null,
+                "failures": [],
+                "loop": "gemm",
+                "pass": true,
+                "seed": 20260919,
+                "sha256": {
+                  "a": "30a6ca9f2b189e1e9f44d5b6aa418493642676e75fe6c8ae5afd8e097c20cbb5",
+                  "b": "c6080ce9b562f16604b6f41b5f2ab8f8c61b8cc8a624c058f19b45b6acf8d082",
+                  "c": "91b22fae71dbb1941da7c55927493036ef46ce54276b05bc6741973343b99631"
+                },
+                "shapes": "512x512 @ 512x512 fp32",
+                "shim": {
+                  "shim_after": null,
+                  "shim_before": null,
+                  "shim_delta": null
+                },
+                "warmup_iters": 20,
+                "window_iters": 200
+              },
+              {
+                "cupti": {
+                  "cupti_device_kernels": 200,
+                  "cupti_device_memcpy": 0,
+                  "cupti_device_memset": 0,
+                  "cupti_driver_launch_calls": 0,
+                  "cupti_graph_launches": 0,
+                  "cupti_runtime_launch_calls": 200,
+                  "cupti_total_trace_events": 1068
+                },
+                "cupti_host_launch_calls": 200,
+                "cupti_host_matches_device": true,
+                "expected_kernels_per_iter": 1,
+                "failures": [],
+                "loop": "control",
+                "pass": true,
+                "seed": 20260919,
+                "sha256": {
+                  "x": "5ea09ce323d89d63745d005a42ab5648d1c88e916dd6d1c356709c0cdb035e2f"
+                },
+                "shapes": "1048576 elements fp32",
+                "shim": {
+                  "shim_after": null,
+                  "shim_before": null,
+                  "shim_delta": null
+                },
+                "warmup_iters": 20,
+                "window_iters": 200
+              }
+            ],
+            "multiprocessor_count": 58,
+            "pass": true,
+            "shim_abi_version": null,
+            "tf32_setter_notes": {
+              "torch.backends.cuda.matmul.allow_tf32": "set",
+              "torch.backends.cudnn.allow_tf32": "set"
+            },
+            "torch_cuda_version": "12.8",
+            "torch_version": "2.10.0+cu128",
+            "with_shim": false
+          }
+        ],
+        "stderr_tail": "/usr/local/lib/python3.11/site-packages/torch/profiler/profiler.py:217: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.\n  _warn_once(\n",
+        "wall_s": 7.252
+      },
+      "vector_add": {
+        "command": [
+          "/opt/tessera-bin/vector_add"
+        ],
+        "exit_code": 0,
+        "parsed": [
+          {
+            "blocks_per_chunk": 256,
+            "chunks": 16,
+            "compute_capability": "8.9",
+            "cuda_driver_version": 13000,
+            "cuda_runtime_version": 12060,
+            "device_name": "NVIDIA L4",
+            "elements": 1048576,
+            "kernel_launches": 16,
+            "mismatches": 0,
+            "multiprocessor_count": 58,
+            "sample": "vector_add",
+            "seed": 20260919,
+            "sha256": "63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676",
+            "threads_per_block": 256
+          }
+        ],
+        "stdout_tail": "TESSERA_JSON {\"sample\":\"vector_add\",\"elements\":1048576,\"chunks\":16,\"threads_per_block\":256,\"blocks_per_chunk\":256,\"seed\":20260919,\"kernel_launches\":16,\"sha256\":\"63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676\",\"mismatches\":0,\"device_name\":\"NVIDIA L4\",\"compute_capability\":\"8.9\",\"multiprocessor_count\":58,\"cuda_runtime_version\":12060,\"cuda_driver_version\":13000}\n",
+        "wall_s": 0.388
+      }
+    },
+    "finished_utc": "2026-09-20T02:29:35Z",
+    "g8": {
+      "baseline_hashes": {
+        "torch::control": {
+          "x": "5ea09ce323d89d63745d005a42ab5648d1c88e916dd6d1c356709c0cdb035e2f"
+        },
+        "torch::gemm": {
+          "a": "30a6ca9f2b189e1e9f44d5b6aa418493642676e75fe6c8ae5afd8e097c20cbb5",
+          "b": "c6080ce9b562f16604b6f41b5f2ab8f8c61b8cc8a624c058f19b45b6acf8d082",
+          "c": "91b22fae71dbb1941da7c55927493036ef46ce54276b05bc6741973343b99631"
+        },
+        "vector_add": "63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676"
+      },
+      "mismatches": [],
+      "missing_on_one_side": [],
+      "pass": true,
+      "shim_hashes": {
+        "torch::control": {
+          "x": "5ea09ce323d89d63745d005a42ab5648d1c88e916dd6d1c356709c0cdb035e2f"
+        },
+        "torch::gemm": {
+          "a": "30a6ca9f2b189e1e9f44d5b6aa418493642676e75fe6c8ae5afd8e097c20cbb5",
+          "b": "c6080ce9b562f16604b6f41b5f2ab8f8c61b8cc8a624c058f19b45b6acf8d082",
+          "c": "91b22fae71dbb1941da7c55927493036ef46ce54276b05bc6741973343b99631"
+        },
+        "vector_add": "63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676"
+      },
+      "status": "compared"
+    },
+    "g9": {
+      "pass": true,
+      "rows": [
+        {
+          "expected": 16,
+          "note": "Self-reported launch count from the sample itself. The sample is a plain C++ binary and never calls tessera_get_stats_v1, so its shim-side count has to come from the shim dumping stats at process exit. Whoever lands WP-0.5 must add that (an env knob honoured by the shim, read back here) before this row can be compared; until then only the torch rows decide G9.",
+          "shim_launches": null,
+          "workload": "vector_add"
+        },
+        {
+          "cupti_device_kernels": 400,
+          "failures": [],
+          "loop_pass": true,
+          "shim_graph_launches": 0,
+          "shim_launches": 400,
+          "workload": "torch::gemm"
+        },
+        {
+          "cupti_device_kernels": 200,
+          "failures": [],
+          "loop_pass": true,
+          "shim_graph_launches": 0,
+          "shim_launches": 200,
+          "workload": "torch::control"
+        }
+      ],
+      "status": "compared"
+    },
+    "gpu_identity": {
+      "compute_mode": "Default",
+      "cuda_driver_version": 13000,
+      "cuda_runtime_version": 12060,
+      "driver_probe": {
+        "cuDeviceGetCount_rc": 0,
+        "cuDriverGetVersion_rc": 0,
+        "cuInit_rc": 0,
+        "cuda_driver_version": 13000,
+        "device_count": 1,
+        "devices": [
+          {
+            "async_engine_count": 2,
+            "clock_rate_khz": 2040000,
+            "compute_capability_major": 8,
+            "compute_capability_minor": 9,
+            "compute_mode": 0,
+            "multiprocessor_count": 58,
+            "name": "NVIDIA L4",
+            "ordinal": 0
+          }
+        ],
+        "libcuda_loadable": true
+      },
+      "driver_version": "580.95.05",
+      "gpu_model": "NVIDIA L4",
+      "gpu_requested": "L4",
+      "gpu_uuid": "GPU-e6504b85-0f78-410c-a60a-9f79df7673c1",
+      "memory_total": "23034 MiB",
+      "nvidia_smi_exit_code": 0,
+      "nvidia_smi_query": "0, NVIDIA L4, GPU-e6504b85-0f78-410c-a60a-9f79df7673c1, 580.95.05, Default, 23034 MiB"
+    },
+    "image_manifest": {
+      "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+      "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+      "built_at_utc": "2026-09-20T02:29:07Z",
+      "cuda_headers": {
+        "cuda_version": 12060,
+        "package_version": "12.6.77-1",
+        "path": "/opt/tessera-deps/cuda-12.6/x86_64-linux/include/cuda.h"
+      },
+      "kind": "tessera_image_manifest",
+      "os_release": "Ubuntu 22.04.5 LTS",
+      "paths": {
+        "bin_dir": "/opt/tessera-bin",
+        "build_dir": "/opt/tessera-build",
+        "build_trees": [
+          "clang-18",
+          "gcc-13"
+        ],
+        "deps": "/opt/tessera-deps",
+        "repo": "/opt/tessera",
+        "vector_add": "/opt/tessera-bin/vector_add"
+      },
+      "python_packages": {
+        "pinned_torch": "2.10.0",
+        "pinned_vllm_for_m1": "0.19.1",
+        "torch": "2.10.0+cu128",
+        "torch_cuda": "12.8",
+        "torch_git_version": "449b1768410104d3ed79d3bcfe4ba1d65c7f22c0"
+      },
+      "toolchain": {
+        "clang": {
+          "binary": "clang++-18",
+          "path": "/usr/bin/clang++-18",
+          "version_line": "Ubuntu clang version 18.1.8 (++20240731024944+3b5b5c1ec4a3-1~exp1~20240731145000.144)"
+        },
+        "cmake": {
+          "path": "/usr/local/bin/cmake",
+          "version_line": "cmake version 3.31.6"
+        },
+        "gcc": {
+          "binary": "g++-13",
+          "dumpfullversion": "13.4.0",
+          "path": "/usr/bin/g++-13",
+          "version_line": "g++-13 (Ubuntu 13.4.0-6ubuntu1~22~ppa2) 13.4.0"
+        },
+        "ninja": {
+          "path": "/usr/local/bin/ninja",
+          "version": "1.13.2.git.kitware.jobserver-pipe-1"
+        },
+        "nvcc": {
+          "path": "/usr/local/cuda/bin/nvcc",
+          "version": "Build cuda_12.6.r12.6/compiler.35059454_0"
+        },
+        "python": "3.11.5"
+      },
+      "versions_lock_verified_on": "2026-09-19"
+    },
+    "kind": "m0_gate",
+    "pass": true,
+    "shim": {
+      "masq_dir": "/opt/tessera-build/gcc-13/shim/masq",
+      "requested": true,
+      "torch_matmul_loop": {
+        "command": [
+          "/opt/tessera/infra/with_shim.sh",
+          "/usr/local/bin/python",
+          "/opt/tessera/eval/m0/torch_matmul_loop.py",
+          "--loop",
+          "both",
+          "--iters",
+          "200",
+          "--warmup",
+          "20",
+          "--with-shim"
+        ],
+        "exit_code": 0,
+        "parsed": [
+          {
+            "cupti": {
+              "cupti_device_kernels": 400,
+              "cupti_device_memcpy": 0,
+              "cupti_device_memset": 0,
+              "cupti_driver_launch_calls": 200,
+              "cupti_graph_launches": 0,
+              "cupti_runtime_launch_calls": 200,
+              "cupti_total_trace_events": 2268
+            },
+            "cupti_host_launch_calls": 400,
+            "cupti_host_matches_device": true,
+            "expected_kernels_per_iter": null,
+            "failures": [],
+            "loop": "gemm",
+            "pass": true,
+            "seed": 20260919,
+            "sha256": {
+              "a": "30a6ca9f2b189e1e9f44d5b6aa418493642676e75fe6c8ae5afd8e097c20cbb5",
+              "b": "c6080ce9b562f16604b6f41b5f2ab8f8c61b8cc8a624c058f19b45b6acf8d082",
+              "c": "91b22fae71dbb1941da7c55927493036ef46ce54276b05bc6741973343b99631"
+            },
+            "shapes": "512x512 @ 512x512 fp32",
+            "shim": {
+              "shim_after": {
+                "bypassed_lookups": 0,
+                "forwarded_unhooked": 1000,
+                "graph_launches": 0,
+                "hooked_calls": 400,
+                "launches": 400
+              },
+              "shim_before": {
+                "bypassed_lookups": 0,
+                "forwarded_unhooked": 0,
+                "graph_launches": 0,
+                "hooked_calls": 0,
+                "launches": 0
+              },
+              "shim_delta": {
+                "bypassed_lookups": 0,
+                "forwarded_unhooked": 1000,
+                "graph_launches": 0,
+                "hooked_calls": 400,
+                "launches": 400
+              }
+            },
+            "warmup_iters": 20,
+            "window_iters": 200
+          },
+          {
+            "cupti": {
+              "cupti_device_kernels": 200,
+              "cupti_device_memcpy": 0,
+              "cupti_device_memset": 0,
+              "cupti_driver_launch_calls": 0,
+              "cupti_graph_launches": 0,
+              "cupti_runtime_launch_calls": 200,
+              "cupti_total_trace_events": 1068
+            },
+            "cupti_host_launch_calls": 200,
+            "cupti_host_matches_device": true,
+            "expected_kernels_per_iter": 1,
+            "failures": [],
+            "loop": "control",
+            "pass": true,
+            "seed": 20260919,
+            "sha256": {
+              "x": "5ea09ce323d89d63745d005a42ab5648d1c88e916dd6d1c356709c0cdb035e2f"
+            },
+            "shapes": "1048576 elements fp32",
+            "shim": {
+              "shim_after": {
+                "bypassed_lookups": 0,
+                "forwarded_unhooked": 200,
+                "graph_launches": 0,
+                "hooked_calls": 200,
+                "launches": 200
+              },
+              "shim_before": {
+                "bypassed_lookups": 0,
+                "forwarded_unhooked": 0,
+                "graph_launches": 0,
+                "hooked_calls": 0,
+                "launches": 0
+              },
+              "shim_delta": {
+                "bypassed_lookups": 0,
+                "forwarded_unhooked": 200,
+                "graph_launches": 0,
+                "hooked_calls": 200,
+                "launches": 200
+              }
+            },
+            "warmup_iters": 20,
+            "window_iters": 200
+          },
+          {
+            "allow_tf32_cudnn": false,
+            "allow_tf32_matmul": false,
+            "compute_capability": "8.9",
+            "cublas_workspace_config": ":4096:8",
+            "cudnn_version": 91002,
+            "deterministic_algorithms": true,
+            "device_name": "NVIDIA L4",
+            "float32_matmul_precision": "highest",
+            "kind": "torch_matmul_loop_summary",
+            "loops": [
+              {
+                "cupti": {
+                  "cupti_device_kernels": 400,
+                  "cupti_device_memcpy": 0,
+                  "cupti_device_memset": 0,
+                  "cupti_driver_launch_calls": 200,
+                  "cupti_graph_launches": 0,
+                  "cupti_runtime_launch_calls": 200,
+                  "cupti_total_trace_events": 2268
+                },
+                "cupti_host_launch_calls": 400,
+                "cupti_host_matches_device": true,
+                "expected_kernels_per_iter": null,
+                "failures": [],
+                "loop": "gemm",
+                "pass": true,
+                "seed": 20260919,
+                "sha256": {
+                  "a": "30a6ca9f2b189e1e9f44d5b6aa418493642676e75fe6c8ae5afd8e097c20cbb5",
+                  "b": "c6080ce9b562f16604b6f41b5f2ab8f8c61b8cc8a624c058f19b45b6acf8d082",
+                  "c": "91b22fae71dbb1941da7c55927493036ef46ce54276b05bc6741973343b99631"
+                },
+                "shapes": "512x512 @ 512x512 fp32",
+                "shim": {
+                  "shim_after": {
+                    "bypassed_lookups": 0,
+                    "forwarded_unhooked": 1000,
+                    "graph_launches": 0,
+                    "hooked_calls": 400,
+                    "launches": 400
+                  },
+                  "shim_before": {
+                    "bypassed_lookups": 0,
+                    "forwarded_unhooked": 0,
+                    "graph_launches": 0,
+                    "hooked_calls": 0,
+                    "launches": 0
+                  },
+                  "shim_delta": {
+                    "bypassed_lookups": 0,
+                    "forwarded_unhooked": 1000,
+                    "graph_launches": 0,
+                    "hooked_calls": 400,
+                    "launches": 400
+                  }
+                },
+                "warmup_iters": 20,
+                "window_iters": 200
+              },
+              {
+                "cupti": {
+                  "cupti_device_kernels": 200,
+                  "cupti_device_memcpy": 0,
+                  "cupti_device_memset": 0,
+                  "cupti_driver_launch_calls": 0,
+                  "cupti_graph_launches": 0,
+                  "cupti_runtime_launch_calls": 200,
+                  "cupti_total_trace_events": 1068
+                },
+                "cupti_host_launch_calls": 200,
+                "cupti_host_matches_device": true,
+                "expected_kernels_per_iter": 1,
+                "failures": [],
+                "loop": "control",
+                "pass": true,
+                "seed": 20260919,
+                "sha256": {
+                  "x": "5ea09ce323d89d63745d005a42ab5648d1c88e916dd6d1c356709c0cdb035e2f"
+                },
+                "shapes": "1048576 elements fp32",
+                "shim": {
+                  "shim_after": {
+                    "bypassed_lookups": 0,
+                    "forwarded_unhooked": 200,
+                    "graph_launches": 0,
+                    "hooked_calls": 200,
+                    "launches": 200
+                  },
+                  "shim_before": {
+                    "bypassed_lookups": 0,
+                    "forwarded_unhooked": 0,
+                    "graph_launches": 0,
+                    "hooked_calls": 0,
+                    "launches": 0
+                  },
+                  "shim_delta": {
+                    "bypassed_lookups": 0,
+                    "forwarded_unhooked": 200,
+                    "graph_launches": 0,
+                    "hooked_calls": 200,
+                    "launches": 200
+                  }
+                },
+                "warmup_iters": 20,
+                "window_iters": 200
+              }
+            ],
+            "multiprocessor_count": 58,
+            "pass": true,
+            "shim_abi_version": 1,
+            "tf32_setter_notes": {
+              "torch.backends.cuda.matmul.allow_tf32": "set",
+              "torch.backends.cudnn.allow_tf32": "set"
+            },
+            "torch_cuda_version": "12.8",
+            "torch_version": "2.10.0+cu128",
+            "with_shim": true
+          }
+        ],
+        "stderr_tail": "/usr/local/lib/python3.11/site-packages/torch/profiler/profiler.py:217: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.\n  _warn_once(\n",
+        "wall_s": 5.697
+      },
+      "vector_add": {
+        "command": [
+          "/opt/tessera/infra/with_shim.sh",
+          "/opt/tessera-bin/vector_add"
+        ],
+        "exit_code": 0,
+        "parsed": [
+          {
+            "blocks_per_chunk": 256,
+            "chunks": 16,
+            "compute_capability": "8.9",
+            "cuda_driver_version": 13000,
+            "cuda_runtime_version": 12060,
+            "device_name": "NVIDIA L4",
+            "elements": 1048576,
+            "kernel_launches": 16,
+            "mismatches": 0,
+            "multiprocessor_count": 58,
+            "sample": "vector_add",
+            "seed": 20260919,
+            "sha256": "63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676",
+            "threads_per_block": 256
+          }
+        ],
+        "stdout_tail": "TESSERA_JSON {\"sample\":\"vector_add\",\"elements\":1048576,\"chunks\":16,\"threads_per_block\":256,\"blocks_per_chunk\":256,\"seed\":20260919,\"kernel_launches\":16,\"sha256\":\"63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676\",\"mismatches\":0,\"device_name\":\"NVIDIA L4\",\"compute_capability\":\"8.9\",\"multiprocessor_count\":58,\"cuda_runtime_version\":12060,\"cuda_driver_version\":13000}\n",
+        "wall_s": 0.521
+      }
+    },
+    "started_utc": "2026-09-20T02:29:21Z",
+    "torch": {
+      "allow_tf32_matmul": false,
+      "cublas_workspace_config": ":4096:8",
+      "cudnn_version": 91002,
+      "deterministic_algorithms": true,
+      "torch_cuda_version": "12.8",
+      "torch_version": "2.10.0+cu128"
+    },
+    "wall_s": 13.943,
+    "warmup_iters": 20,
+    "window_iters": 200,
+    "with_shim": true
+  },
+  "utc": "2026-09-20T02:29:14Z",
+  "wall_s_local": 21.088
+}

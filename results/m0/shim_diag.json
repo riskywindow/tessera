@@ -1,0 +1,178 @@
+{
+  "argv": [
+    "/root/.local/bin/modal",
+    "run",
+    "infra/modal_gpu.py",
+    "--action",
+    "shim-diag"
+  ],
+  "command": "TESSERA_GPU=L4 modal run infra/modal_gpu.py --action shim_diag",
+  "error": null,
+  "exit_code": 0,
+  "finished_utc": "2026-09-20T02:26:01Z",
+  "git": {
+    "branch": "main",
+    "commit": "d41ff9e7934f28e12c297ecf000f8ec35d0676a0",
+    "dirty": true,
+    "dirty_paths": [
+      "M infra/modal_gpu.py",
+      " M results/spend/ledger.jsonl",
+      "?? results/m0/gpu_gate.json",
+      "?? results/m0/local_matrix.json",
+      "?? results/m0/shim_diag.json"
+    ]
+  },
+  "gpu": {
+    "compute_mode": null,
+    "cuda_driver_version": null,
+    "cuda_runtime_version": null,
+    "cuda_runtime_version_torch": null,
+    "driver_version": null,
+    "model": null,
+    "uuid": null
+  },
+  "image": {
+    "base_image": "nvidia/cuda:12.6.3-devel-ubuntu22.04",
+    "base_image_digest": "sha256:d49bb8a4ff97fb5fe477947a3f02aa8c0a53eae77e11f00ec28618a0bcaa2ad1",
+    "manifest": {}
+  },
+  "kind": "tessera_shim_diag_result",
+  "milestone": "M0",
+  "modal": {
+    "app_id": "ap-hKNP9FhboicClXixV0Gj0t",
+    "app_name": "tessera-m0",
+    "client_version": "1.5.5",
+    "detached": false,
+    "function": "shim_diag",
+    "gpu_requested": "L4",
+    "timeout_s": 1200
+  },
+  "result": {
+    "driver_exports_shim_lacks_count": {
+      "cmd": [
+        "bash",
+        "-c",
+        "comm -13 <(nm -D --defined-only /opt/tessera-build/gcc-13/shim/masq/libcuda.so.1 | awk '{print $3}' | grep '^cu' | LC_ALL=C sort -u) <(nm -D --defined-only /usr/lib/x86_64-linux-gnu/libcuda.so.1 | awk '{print $3}' | grep '^cu' | LC_ALL=C sort -u) | wc -l"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "",
+      "stdout": "67\n",
+      "timed_out": false,
+      "wall_s": 0.088
+    },
+    "finished_utc": "2026-09-20T02:26:01Z",
+    "gdb_install": {
+      "cmd": [
+        "bash",
+        "-c",
+        "apt-get update -qq && apt-get install -y -qq gdb"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "debconf: delaying package configuration, since apt-utils is not installed\n",
+      "stdout": "Selecting previously unselected package libdebuginfod-common.\n(Reading database ... \n(Reading database ... 5%\n(Reading database ... 10%\n(Reading database ... 15%\n(Reading database ... 20%\n(Reading database ... 25%\n(Reading database ... 30%\n(Reading database ... 35%\n(Reading database ... 40%\n(Reading database ... 45%\n(Reading database ... 50%\n(Reading database ... 55%\n(Reading database ... 60%\n(Reading database ... 65%\n(Reading database ... 70%\n(Reading database ... 75%\n(Reading database ... 80%\n(Reading database ... 85%\n(Reading database ... 90%\n(Reading database ... 95%\n(Reading database ... 100%\n(Reading database ... 22792 files and directories currently installed.)\nPreparing to unpack .../0-libdebuginfod-common_0.186-1ubuntu0.1_all.deb ...\nUnpacking libdebuginfod-common (0.186-1ubuntu0.1) ...\nSelecting previously unselected package libbabeltrace1:amd64.\nPreparing to unpack .../1-libbabeltrace1_1.5.8-2build1_amd64.deb ...\nUnpacking libbabeltrace1:amd64 (1.5.8-2build1) ...\nSelecting previously unselected package libdebuginfod1:amd64.\nPreparing to unpack .../2-libdebuginfod1_0.186-1ubuntu0.1_amd64.deb ...\nUnpacking libdebuginfod1:amd64 (0.186-1ubuntu0.1) ...\nSelecting previously unselected package libipt2.\nPreparing to unpack .../3-libipt2_2.0.5-1_amd64.deb ...\nUnpacking libipt2 (2.0.5-1) ...\nSelecting previously unselected package libpython3.10:amd64.\nPreparing to unpack .../4-libpython3.10_3.10.12-1~22.04.18_amd64.deb ...\nUnpacking libpython3.10:amd64 (3.10.12-1~22.04.18) ...\nSelecting previously unselected package libsource-highlight-common.\nPreparing to unpack .../5-libsource-highlight-common_3.1.9-4.1build2_all.deb ...\nUnpacking libsource-highlight-common (3.1.9-4.1build2) ...\nSelecting previously unselected package libboost-regex1.74.0:amd64.\nPreparing to unpack .../6-libboost-regex1.74.0_1.74.0-14ubuntu3_amd64.deb ...\nUnpacking libboost-regex1.74.0:amd64 (1.74.0-14ubuntu3) ...\nSelecting previously unselected package libsource-highlight4v5.\nPreparing to unpack .../7-libsource-highlight4v5_3.1.9-4.1build2_amd64.deb ...\nUnpacking libsource-highlight4v5 (3.1.9-4.1build2) ...\nSelecting previously unselected package gdb.\nPreparing to unpack .../8-gdb_12.1-0ubuntu1~22.04.2_amd64.deb ...\nUnpacking gdb (12.1-0ubuntu1~22.04.2) ...\nSelecting previously unselected package libc6-dbg:amd64.\nPreparing to unpack .../9-libc6-dbg_2.35-0ubuntu3.15_amd64.deb ...\nUnpacking libc6-dbg:amd64 (2.35-0ubuntu3.15) ...\nSetting up libpython3.10:amd64 (3.10.12-1~22.04.18) ...\nSetting up libdebuginfod-common (0.186-1ubuntu0.1) ...\n\nCreating config file /etc/profile.d/debuginfod.sh with new version\n\nCreating config file /etc/profile.d/debuginfod.csh with new version\nSetting up libdebuginfod1:amd64 (0.186-1ubuntu0.1) ...\nSetting up libsource-highlight-common (3.1.9-4.1build2) ...\nSetting up libc6-dbg:amd64 (2.35-0ubuntu3.15) ...\nSetting up libboost-regex1.74.0:amd64 (1.74.0-14ubuntu3) ...\nSetting up libipt2 (2.0.5-1) ...\nSetting up libbabeltrace1:amd64 (1.5.8-2build1) ...\nSetting up libsource-highlight4v5 (3.1.9-4.1build2) ...\nSetting up gdb (12.1-0ubuntu1~22.04.2) ...\nProcessing triggers for libc-bin (2.35-0ubuntu3.8) ...\n",
+      "timed_out": false,
+      "wall_s": 18.322
+    },
+    "gpu_requested": "L4",
+    "have_gdb": true,
+    "kind": "shim_diag",
+    "ld_debug": {
+      "cmd": [
+        "bash",
+        "-c",
+        "LD_DEBUG=libs /opt/tessera-bin/vector_add 2>&1 | tail -40"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "",
+      "stdout": "       656:\t\n       656:\ttransferring control: /opt/tessera-bin/vector_add\n       656:\t\n       656:\tfind library=libcuda.so.1 [0]; searching\n       656:\t search path=/opt/tessera-build/gcc-13/shim/masq\t\t(LD_LIBRARY_PATH)\n       656:\t  trying file=/opt/tessera-build/gcc-13/shim/masq/libcuda.so.1\n       656:\t\n       656:\t\n       656:\tcalling init: /opt/tessera-build/gcc-13/shim/masq/libcuda.so.1\n       656:\t\n       656:\tfind library=libdl.so.2 [0]; searching\n       656:\t search path=/opt/tessera-build/gcc-13/shim/masq\t\t(LD_LIBRARY_PATH)\n       656:\t  trying file=/opt/tessera-build/gcc-13/shim/masq/libdl.so.2\n       656:\t search cache=/etc/ld.so.cache\n       656:\t  trying file=/lib/x86_64-linux-gnu/libdl.so.2\n       656:\t\n       656:\tfind library=libpthread.so.0 [0]; searching\n       656:\t search path=/opt/tessera-build/gcc-13/shim/masq\t\t(LD_LIBRARY_PATH)\n       656:\t  trying file=/opt/tessera-build/gcc-13/shim/masq/libpthread.so.0\n       656:\t search cache=/etc/ld.so.cache\n       656:\t  trying file=/lib/x86_64-linux-gnu/libpthread.so.0\n       656:\t\n       656:\tfind library=librt.so.1 [0]; searching\n       656:\t search path=/opt/tessera-build/gcc-13/shim/masq\t\t(LD_LIBRARY_PATH)\n       656:\t  trying file=/opt/tessera-build/gcc-13/shim/masq/librt.so.1\n       656:\t search cache=/etc/ld.so.cache\n       656:\t  trying file=/lib/x86_64-linux-gnu/librt.so.1\n       656:\t\n       656:\t\n       656:\tcalling init: /lib/x86_64-linux-gnu/librt.so.1\n       656:\t\n       656:\t\n       656:\tcalling init: /lib/x86_64-linux-gnu/libpthread.so.0\n       656:\t\n       656:\t\n       656:\tcalling init: /lib/x86_64-linux-gnu/libdl.so.2\n       656:\t\n       656:\t\n       656:\tcalling init: /usr/lib/x86_64-linux-gnu/libcuda.so.1\n       656:\t\n",
+      "timed_out": false,
+      "wall_s": 0.035
+    },
+    "masq_dir": {
+      "cmd": [
+        "ls",
+        "-la",
+        "/opt/tessera-build/gcc-13/shim/masq"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "",
+      "stdout": "total 567\ndrwxr-xr-x 1 root root     56 Sep 20 02:17 .\ndrwxr-xr-x 1 root root    156 Sep 20 02:17 ..\nlrwxrwxrwx 1 root root     12 Sep 20 02:17 libcuda.so -> libcuda.so.1\n-rwxr-xr-x 1 root root 578120 Sep 20 02:17 libcuda.so.1\n",
+      "timed_out": false,
+      "wall_s": 0.013
+    },
+    "masquerade": {
+      "cmd": [
+        "/opt/tessera-bin/vector_add"
+      ],
+      "exit_code": -11,
+      "ok": false,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "wall_s": 0.018
+    },
+    "masquerade_backtrace": {
+      "cmd": [
+        "gdb",
+        "-batch",
+        "-ex",
+        "run",
+        "-ex",
+        "bt 40",
+        "--args",
+        "/opt/tessera-bin/vector_add"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "warning: Error disabling address space randomization: Invalid argument\n",
+      "stdout": "[Thread debugging using libthread_db enabled]\nUsing host libthread_db library \"/lib/x86_64-linux-gnu/libthread_db.so.1\".\n\nProgram received signal SIGSEGV, Segmentation fault.\ntessera::(anonymous namespace)::find_elsewhere (name=name@entry=0x2abbebc80e5a \"dlvsym\") at /opt/tessera/shim/src/native_dlsym.cc:174\n174\t      index = lookup_sysv(d, name);\n#0  tessera::(anonymous namespace)::find_elsewhere (name=name@entry=0x2abbebc80e5a \"dlvsym\") at /opt/tessera/shim/src/native_dlsym.cc:174\n#1  0x00002abbebc59d09 in tessera::(anonymous namespace)::bootstrap () at /opt/tessera/shim/src/native_dlsym.cc:201\n#2  tessera::(anonymous namespace)::bootstrap_once () at /opt/tessera/shim/src/native_dlsym.cc:230\n#3  tessera::(anonymous namespace)::bootstrap_once () at /opt/tessera/shim/src/native_dlsym.cc:226\n#4  0x00002abbebc59d91 in tessera::real_dlsym () at /opt/tessera/shim/src/native_dlsym.cc:241\n#5  tessera::real_dlsym () at /opt/tessera/shim/src/native_dlsym.cc:236\n#6  0x00002abbebc5564b in tessera::(anonymous namespace)::handle_is_self (handle=0x5574249f4570) at /opt/tessera/shim/src/state.cc:67\n#7  tessera::(anonymous namespace)::open_driver (path=path@entry=0x7ebd36d42f75 \"/usr/lib/x86_64-linux-gnu/libcuda.so.1\", explicit_request=explicit_request@entry=true) at /opt/tessera/shim/src/state.cc:102\n#8  0x00002abbebc5584c in tessera::(anonymous namespace)::do_init () at /opt/tessera/shim/src/state.cc:141\n#9  tessera::ensure_init () at /opt/tessera/shim/src/state.cc:250\n#10 0x00002abbebc55aa1 in tessera::resolve_slow (index=index@entry=144) at /opt/tessera/shim/src/symbols.cc:172\n#11 0x00002abbebc59988 in cuGetProcAddress_v2 (symbol=0x5574249ae0e5 \"\", pfn=0x5574249e0aa8 <libcudart_static_22c7709360022c7403149832b6823a4b93b068f5>, cudaVersion=0, flags=0, symbolStatus=0x0) at /opt/tessera/shim/src/proc_address.cc:174\n#12 0x000055742494af0d in libcudart_static_10dac524d435aadb0bb1119bd5c2fe1ba79a73e8 ()\n#13 0x00005574249570d3 in libcudart_static_aa4a6bcb5fce58be20d542d9b467101e0a9360a5 ()\n#14 0x0000557424957280 in libcudart_static_0bf7336e71b5df655f7fe4ef2dea52179e6fcf82 ()\n#15 0x00002abbeb9c8ea8 in __pthread_once_slow (once_control=0x5574249dfda8 <libcudart_static_08cd9c81021de025f90d77a527f44bb6a85f7117>, init_routine=0x557424957220 <libcudart_static_0bf7336e71b5df655f7fe4ef2dea52179e6fcf82>) at ./nptl/pthread_once.c:116\n#16 0x00005574249aa379 in libcudart_static_5887a27cefafb4cd438bdc166b0a6f874b079d4b ()\n#17 0x000055742494a8df in libcudart_static_418eebf4e9b7463362b8385a31d08da131d0ea88 ()\n#18 0x000055742497634a in cudaSetDevice ()\n#19 0x0000557424931bb0 in main ()\n",
+      "timed_out": false,
+      "wall_s": 0.972
+    },
+    "milestone": "M0",
+    "no_shim": {
+      "cmd": [
+        "/opt/tessera-bin/vector_add"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "",
+      "stdout": "TESSERA_JSON {\"sample\":\"vector_add\",\"elements\":1048576,\"chunks\":16,\"threads_per_block\":256,\"blocks_per_chunk\":256,\"seed\":20260919,\"kernel_launches\":16,\"sha256\":\"63dbaea61d1ec4d76eaf35256eb22667675f52f9b5bebb9a71ee1d8fbbd79676\",\"mismatches\":0,\"device_name\":\"NVIDIA L4\",\"compute_capability\":\"8.9\",\"multiprocessor_count\":58,\"cuda_runtime_version\":12060,\"cuda_driver_version\":13000}\n",
+      "timed_out": false,
+      "wall_s": 0.399
+    },
+    "pass": true,
+    "preload": {
+      "cmd": [
+        "/opt/tessera-bin/vector_add"
+      ],
+      "exit_code": -11,
+      "ok": false,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "wall_s": 0.014
+    },
+    "real_driver": "/usr/lib/x86_64-linux-gnu/libcuda.so.1",
+    "shim_exports_driver_lacks": {
+      "cmd": [
+        "bash",
+        "-c",
+        "comm -23 <(nm -D --defined-only /opt/tessera-build/gcc-13/shim/masq/libcuda.so.1 | awk '{print $3}' | grep '^cu' | LC_ALL=C sort -u) <(nm -D --defined-only /usr/lib/x86_64-linux-gnu/libcuda.so.1 | awk '{print $3}' | grep '^cu' | LC_ALL=C sort -u)"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "stderr": "",
+      "stdout": "",
+      "timed_out": false,
+      "wall_s": 0.147
+    },
+    "started_utc": "2026-09-20T02:25:41Z"
+  },
+  "utc": "2026-09-20T02:25:34Z",
+  "wall_s_local": 27.404
+}

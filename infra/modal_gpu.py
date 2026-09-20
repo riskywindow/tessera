@@ -742,6 +742,104 @@ def cpu_tests() -> dict[str, Any]:
 
 
 @app.function(image=BASE_IMAGE, gpu=GPU, timeout=GATE_TIMEOUT_S)
+def shim_diag() -> dict[str, Any]:
+    """Why does the shim crash against the real driver when 154 CPU tests pass?
+
+    m0_gate --with-shim reported `vector_add` exiting on SIGSEGV. The CPU suite
+    cannot see this because it runs against libcuda_fake, so this collects the
+    evidence that distinguishes the candidate causes, on the GPU, in one run:
+
+      * does the sample run at all without the shim (is the sample the problem?)
+      * what does the shim's own log say before it dies, and how far does it get
+      * a backtrace, which separates "recursion into the shim" (a deep,
+        repeating stack -- risk R-21) from a null call through an unresolved
+        trampoline slot (a short stack)
+      * does LD_PRELOAD survive where masquerade does not? Only masquerade puts
+        the shim in the application's global scope, so a difference between the
+        two points at symbol interposition rather than at the wrappers
+      * how far apart are the shim's 12.6-derived export list and the real
+        driver's (R-3): the driver here reports CUDA 13.0
+    """
+    result: dict[str, Any] = {
+        "kind": "shim_diag",
+        "milestone": "M0",
+        "started_utc": _utcnow(),
+        "gpu_requested": GPU,
+    }
+    build = f"{IMAGE_BUILD_DIR}/gcc-{GCC_MAJOR}"
+    masq_dir = os.environ.get("TESSERA_MASQ_DIR", f"{build}/shim/masq")
+    sample = f"{IMAGE_BIN}/vector_add"
+    preload = f"{build}/shim/libtessera.so"
+
+    real = ""
+    for candidate in (
+        "/usr/lib/x86_64-linux-gnu/libcuda.so.1",
+        "/usr/lib64/libcuda.so.1",
+        "/usr/local/nvidia/lib64/libcuda.so.1",
+    ):
+        if os.path.exists(candidate):
+            real = candidate
+            break
+    result["real_driver"] = real
+    result["masq_dir"] = _run(["ls", "-la", masq_dir], timeout=60)
+
+    shim_env = {
+        "LD_LIBRARY_PATH": masq_dir,
+        "TESSERA_REAL_LIBCUDA": real,
+        "TESSERA_LOG": "1",
+    }
+    result["no_shim"] = _run([sample], timeout=300)
+    result["masquerade"] = _run([sample], timeout=300, env=shim_env)
+    result["preload"] = _run(
+        [sample],
+        timeout=300,
+        env={"LD_PRELOAD": preload, "TESSERA_REAL_LIBCUDA": real, "TESSERA_LOG": "1"},
+    )
+
+    # The base image has no debugger. Installing one costs a few GPU seconds
+    # and is the difference between "it segfaults" and knowing why.
+    if not _run(["bash", "-c", "command -v gdb"], timeout=60)["ok"]:
+        result["gdb_install"] = _run(
+            ["bash", "-c", "apt-get update -qq && apt-get install -y -qq gdb"], timeout=600
+        )
+
+    # How far does loading get before it dies? The last lines before the crash
+    # separate "died during relocation/init" from "died in a later call".
+    result["ld_debug"] = _run(
+        ["bash", "-c", f"LD_DEBUG=libs {sample} 2>&1 | tail -40"],
+        timeout=300,
+        env=shim_env,
+    )
+
+    have_gdb = _run(["bash", "-c", "command -v gdb"], timeout=60)["ok"]
+    result["have_gdb"] = have_gdb
+    if have_gdb:
+        result["masquerade_backtrace"] = _run(
+            ["gdb", "-batch", "-ex", "run", "-ex", "bt 40", "--args", sample],
+            timeout=600,
+            env=shim_env,
+        )
+
+    def symbols(path: str) -> str:
+        return f"<(nm -D --defined-only {path} | awk '{{print $3}}' | grep '^cu' | LC_ALL=C sort -u)"
+
+    if real:
+        result["shim_exports_driver_lacks"] = _run(
+            ["bash", "-c", f"comm -23 {symbols(masq_dir + '/libcuda.so.1')} {symbols(real)}"],
+            timeout=120,
+        )
+        result["driver_exports_shim_lacks_count"] = _run(
+            ["bash", "-c", f"comm -13 {symbols(masq_dir + '/libcuda.so.1')} {symbols(real)} | wc -l"],
+            timeout=120,
+        )
+
+    result["finished_utc"] = _utcnow()
+    # A diagnostic reports; it does not judge. The gate is m0_gate's business.
+    result["pass"] = True
+    return _json_safe(result)
+
+
+@app.function(image=BASE_IMAGE, gpu=GPU, timeout=GATE_TIMEOUT_S)
 def m0_gate(
     with_shim: bool = False, iters: int = 200, warmup: int = 20
 ) -> dict[str, Any]:
@@ -994,13 +1092,14 @@ def _compare_g9(shim: dict[str, Any]) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Local entrypoint: results JSON + spend ledger
 # ---------------------------------------------------------------------------
-_ACTIONS = ("platform_probe", "cpu_tests", "m0_gate")
+_ACTIONS = ("platform_probe", "cpu_tests", "m0_gate", "shim_diag")
 
 _RESULT_FILENAMES = {
     "platform_probe": "platform.json",
     "cpu_tests": "cpu_tests.json",
     "m0_gate_baseline": "gpu_baseline.json",
     "m0_gate_shim": "gpu_gate.json",
+    "shim_diag": "shim_diag.json",
 }
 
 
@@ -1087,6 +1186,8 @@ def main(
             payload = platform_probe.remote()
         elif action == "cpu_tests":
             payload = cpu_tests.remote()
+        elif action == "shim_diag":
+            payload = shim_diag.remote()
         else:
             payload = m0_gate.remote(with_shim=with_shim, iters=iters, warmup=warmup)
         if not payload.get("pass", False):
@@ -1114,6 +1215,7 @@ def main(
                 "platform_probe": PROBE_TIMEOUT_S,
                 "cpu_tests": CPU_TESTS_TIMEOUT_S,
                 "m0_gate": GATE_TIMEOUT_S,
+                "shim_diag": GATE_TIMEOUT_S,
             }[action],
         }
     )
@@ -1145,6 +1247,7 @@ def main(
                 "platform_probe": PROBE_TIMEOUT_S,
                 "cpu_tests": CPU_TESTS_TIMEOUT_S,
                 "m0_gate": GATE_TIMEOUT_S,
+                "shim_diag": GATE_TIMEOUT_S,
             }[action],
             "gpu_requested": gpu_for_ledger,
             "detached": False,
