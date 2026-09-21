@@ -229,8 +229,9 @@ jobs:
           # The install step put pipx's bin directory on PATH, so the pinned
           # 19.1.7 is simply "clang-format" here. Hardcoding a path is what
           # broke the first two CI runs.
-          TESSERA_CLANG_FORMAT="$(command -v clang-format)" scripts/format.sh --check
-          "${TESSERA_CLANG_FORMAT}" --version
+          formatter="$(command -v clang-format)"
+          "${formatter}" --version
+          TESSERA_CLANG_FORMAT="${formatter}" scripts/format.sh --check
 
       - name: Configure clang-debug for the compile database
         run: |
