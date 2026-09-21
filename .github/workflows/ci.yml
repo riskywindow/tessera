@@ -193,11 +193,17 @@ jobs:
           clang-tidy-18 --version
 
       - name: Install clang-format 19.1.7
+        # The formatter is pinned because clang-format's output changes between
+        # major versions, and the dev host runs 19.1.7 (infra/versions.lock).
+        # The bin directory is asked of pipx rather than assumed: the runner
+        # already has a /usr/bin/clang-format, and hardcoding ~/.local/bin made
+        # this step fail with "No such file or directory" on the first CI run.
         run: |
           set -euo pipefail
           pipx install "clang-format==19.1.7"
-          echo "${HOME}/.local/bin" >>"${GITHUB_PATH}"
-          "${HOME}/.local/bin/clang-format" --version
+          pipx_bin="$(pipx environment --value PIPX_BIN_DIR)"
+          echo "${pipx_bin}" >>"${GITHUB_PATH}"
+          "${pipx_bin}/clang-format" --version
 
       - name: Cache CUDA driver headers
         uses: actions/cache@v4
