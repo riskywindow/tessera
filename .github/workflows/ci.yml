@@ -16,9 +16,10 @@
 # on purpose: the policy in .clang-tidy has to hold at the supported floor, not
 # only on the newer toolchain the dev box happens to have.
 #
-# NOTE: the repository has no git remote yet, so this file has never been
-# executed. It is written to be correct by construction; the first push will
-# be its first run.
+# This workflow runs on every push to main at
+# https://github.com/riskywindow/tessera. Gate criterion G10 (added by the
+# human at HC-0) is that it has to come back green at least once before M0 can
+# be GREEN.
 name: ci
 
 on:
@@ -225,7 +226,11 @@ jobs:
         # clang-format that happens to be on the runner image cannot win.
         run: |
           set -euo pipefail
-          TESSERA_CLANG_FORMAT="${HOME}/.local/bin/clang-format" scripts/format.sh --check
+          # The install step put pipx's bin directory on PATH, so the pinned
+          # 19.1.7 is simply "clang-format" here. Hardcoding a path is what
+          # broke the first two CI runs.
+          TESSERA_CLANG_FORMAT="$(command -v clang-format)" scripts/format.sh --check
+          "${TESSERA_CLANG_FORMAT}" --version
 
       - name: Configure clang-debug for the compile database
         run: |
