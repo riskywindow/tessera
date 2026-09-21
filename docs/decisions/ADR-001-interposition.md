@@ -1,6 +1,7 @@
 # ADR-001: How Tessera gets between an application and the driver
 
-- Status: proposed (HC-0 decides)
+- Status: **accepted at HC-0 (2026-09-21)**, with two amendments from the human,
+  one of which has a platform wrinkle recorded below.
 - Date: 2026-09-19
 - Invariants: I-2 (unmodified tenants), I-3 (bitwise-identical outputs), I-4 (hot path), I-5 (fail open)
 - Validated by: WP-0.5 tests T1–T7 on CPU; H1 (capture completeness) on GPU in M1
@@ -122,6 +123,43 @@ recursing.
 These are properties of glibc's loader, not of CUDA, so they hold before any
 GPU is involved; H1 still has to confirm that the driver paths a real cudart
 takes are the ones measured here.
+
+## Amendments accepted at HC-0
+
+**1. The forwarding export list is generated from the installed driver, never
+hand-maintained.** Accepted, and it changes what we do: M0 generated the list
+from the CUDA 12.6 *stub* (`cuda-driver-dev`'s `stubs/libcuda.so`) at configure
+time. The human's instruction is to take it from `nm -D` of the **installed
+driver at image build**.
+
+**2. Never call the driver from a constructor.** Already the design (test T5),
+now explicit in the ADR rather than only in the code.
+
+### The wrinkle in amendment 1, stated rather than worked around
+
+An export list cannot be built at runtime. It decides which symbols the shared
+object *exports*, which is fixed when the `.so` is linked, so it must be baked
+at build time. The only open question is **which driver it is derived from**,
+and on our platform that is not free:
+
+- NVIDIA's driver libraries are injected into a Modal container by the container
+  runtime **when a GPU is attached**. A plain image-build step runs on a CPU
+  builder with no GPU and therefore no `/usr/lib/x86_64-linux-gnu/libcuda.so.1`
+  to run `nm -D` against. M0 saw the real driver only inside the GPU function.
+- Modal can attach a GPU to an image-build step, so the instruction is
+  achievable literally: the layer that generates the list requests a GPU, runs
+  `nm -D` on the installed driver, and writes the symbol list into the image.
+  That is what we will do. It costs a small amount of GPU time per image build
+  and is the honest reading of "from the installed driver".
+
+**Residual risk, which neither amendment removes.** The list is baked from the
+driver present *at build time*. If the driver at *run* time is newer, it exports
+symbols the shim does not forward, and under masquerade those symbols do not
+exist for the application. The load-time version check from HC-0 decision 6
+(`cuDriverGetVersion` at least the header version) catches a driver that is too
+**old**; it does not catch one that is too **new**. Risk R-3 stays open with
+that narrower statement, and `bypassed_lookups` remains the signal that the
+list has fallen behind.
 
 ## Corrections found while implementing (WP-0.5)
 

@@ -1077,60 +1077,61 @@ unsupported in MIG mode.**
 
 ## Tessera's delta
 
-Every property Tessera is after already exists somewhere, and in several places it
-exists in a stronger form than Tessera can offer. MPS gives transparent multi-process
-sharing with per-client address spaces, an SM-percentage cap, and — on Ampere and newer —
-static SM partitioning that genuinely reserves; MPS v3 memory partitioning has the driver
-cap `cuMemGetInfo` itself from CUDA 13.4; MIG gives hardware-isolated memory bandwidth
-and fault domains; green contexts give SM-level spatial partitioning with a documented
-reservation property and no kernel code changes; vGPU ships weighted compute schedulers
-with a latency knob; cGPU gives weighted time-slice policies from a kernel module *and* a
-high-priority container that preempts regardless of policy; HAMi-core gives a shipped,
-Apache-2.0, `LD_PRELOAD`-injected driver-API shim that enforces a hard memory quota,
-virtualizes the memory-reporting path, and runs a utilization-feedback compute cap without
-touching the application or the driver; KAI Scheduler gives cluster-level fractional
-allocation with a driver-enforced per-container memory cap on its NvFractions path; and
-Run:ai ships per-pod memory fractions as a commercial product.
+**Approved at HC-0 (2026-09-21). This paragraph is the human's wording, not a
+summary of it.**
 
-The research systems close the remaining gaps in ways that each cost something. Operator-
-granularity scheduling (Orion), kernel-granularity software dispatch (Paella), preemption
-at tens of microseconds (REEF) and predictability by centralized choice (Clockwork) are
-each achievable given some combination of a modified runtime, a recompiled model, a
-framework integration, or a dedicated GPU. Production co-location under a latency
-objective (AntMan) is achievable by modifying TensorFlow and PyTorch. But three neighbors
-need none of those. Tally, XSched and Hummingbird all reach finer control than Tessera on
-*unmodified* tenant binaries over a stock closed NVIDIA driver, and they do it by
-rewriting the tenant's own device code at load time — PTX transformation, `blockIdx`
-shifting, runtime binary instrumentation — or, in XSched's case, additionally through an
-undocumented driver ioctl. And Vitamin-E shows that determinism-preserving spatial
-sharing is achievable from an `LD_PRELOAD` shim plus a coordination daemon over green
-contexts on a stock driver, which is Tessera's architecture, already built and evaluated.
+Tessera is an open-source, host-only GPU sharing layer: no root, no device-code
+rewriting, no resident device-side agent, no context migration, running in a
+stock container on commodity cloud GPUs (L4/A10G) in two modes, solo (no MPS)
+and shared (over MPS). Contributions: (1) a measured, reproducible account of
+what each host-side lever does on an Ada GPU, including the preemption floor set
+by kernel and CUDA-graph durations; (2) a bandwidth-aware SLO controller:
+interactive decode is memory-bound, so Tessera treats DRAM bandwidth pressure,
+not only SM occupancy, as the interference signal, and tests whether SM
+partitioning alone protects TPOT; (3) memory-quota virtualization so unmodified
+vLLM sizes itself to its quota. DetShare, Tally, XSched, Hummingbird, LithOS,
+and µShare are baselines: run their code where public, otherwise report where a
+no-migration, no-agent design lands against their published numbers, and list
+each one's extra mechanism with the measured cost of not having it.
 
-So the availability claim has to be stated much more narrowly than "nobody has done
-this." What is not currently available in one shipped, open-source, drop-in artifact is
-the *combination*: per-tenant memory quotas and weighted compute shares enforced from a
-single per-GPU control plane, with an explicit tail-latency SLO for a nominated
-interactive tenant as the scheduling objective, under tenants that are unmodified
-binaries sharing nothing but a node, with bitwise output equality treated as a tested
-invariant rather than an assumption, achieved *without rewriting the tenant's device
-code*, and with fail-open behaviour so a dead scheduler degrades tenants to unthrottled
-rather than hanging them. The "without rewriting device code" clause is doing real work
-in that sentence — it is what separates Tessera from Tally, XSched and Hummingbird, and
-it is a constraint Tessera has chosen, which means it is also a cost. The gap against
-Vitamin-E rests on per-tenant memory quotas, an explicit fail-open policy, mutually
-distrusting tenants as the threat model, and the fact that Vitamin-E is an unreleased
-prototype. That is an availability claim about artifacts and their stated properties — it
-is not a performance claim, and nothing in it is measured yet.
+### What this delta commits us to
 
-Two consequences follow honestly. If Vitamin-E's artifact is released before HC-0, this
-paragraph must be rewritten rather than patched. And if the M1 numbers show that MPS
-active-thread percentages, or MPS static SM partitioning, or a green-context partition
-already deliver the interactive tenant's SLO, the honest conclusion is that Tessera's
-remaining contribution is packaging, and this file should say so.
+Each clause is a claim someone can check, so each one has an owner:
+
+- **"no root, no device-code rewriting, no resident device-side agent, no
+  context migration"** — four negative constraints that distinguish Tessera from
+  Tally, XSched and Hummingbird, all of which reach finer control by rewriting
+  the tenant's device code. They are constraints we chose, so they are also
+  costs, and the last sentence of the delta requires us to measure each one.
+- **"commodity cloud GPUs (L4/A10G)"** — M0 measured L4 (driver 580.95.05,
+  CUDA 13.0, 58 SMs). A10G is not yet measured and is now in scope for M1.
+- **"bandwidth-aware ... DRAM bandwidth pressure, not only SM occupancy"** — this
+  is the scientific claim, and **H9** is the experiment that decides whether it
+  is true. If confining a batch prefill tenant to k SMs still degrades decode
+  TPOT, SM partitioning alone does not protect the interactive tenant and the
+  controller has a reason to exist. If it does not degrade, this delta needs
+  rewriting.
+- **"DetShare, Tally, XSched, Hummingbird, LithOS, and µShare are baselines"** —
+  a heavier commitment than the previous "related work" framing: where the code
+  is public we run it, and where it is not we report our position against their
+  published numbers and name the mechanism we lack. Two of the six are not yet
+  covered in this file at all (see Open questions).
 
 ## Open questions
 
 M1 must measure these before any claim above about Tessera's position can stand.
+
+0. **Two named baselines have no entry in this file.** The approved delta commits
+   Tessera to treating DetShare, Tally, XSched, Hummingbird, **LithOS** and
+   **µShare** as baselines. LithOS currently appears here only as a name inside
+   *other* systems' comparison sets (it is in Vitamin-E/DetShare's and MuxWise's
+   evaluation tables), never as an entry of its own with a fetched primary
+   source; the earlier review recommended adding it and it was deliberately left
+   out because no primary source had been retrieved. µShare does not appear at
+   all. Both need an entry with a fetched source, a mechanism paragraph, a
+   delta, and — because the delta now promises it — a note on whether the code
+   is public and therefore runnable as a baseline. Until then the delta's last
+   sentence is a commitment this file does not yet support.
 
 1. **Green-context behaviour under an uncooperative neighbor.** NVIDIA's Programming
    Guide already claims the positive property — a kernel "can only use the SMs

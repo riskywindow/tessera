@@ -8,9 +8,10 @@ the next checkpoint.
 
 | ADR | Title | Status | Decided at |
 |---|---|---|---|
-| [ADR-001](decisions/ADR-001-interposition.md) | How Tessera gets between an application and the driver | proposed | HC-0 |
+| [ADR-001](decisions/ADR-001-interposition.md) | How Tessera gets between an application and the driver | **accepted** | HC-0 |
 | [ADR-002](decisions/ADR-002-credits.md) | Credits, and why the hot path is one atomic | proposed | HC-0 |
 | [ADR-003](decisions/ADR-003-deployment-modes.md) | Two deployment modes, both first-class | proposed | HC-0 |
+| [ADR-004](decisions/ADR-004-driver-headers-and-variant-resolution.md) | Build the shim against CUDA 13.x, and let the driver pick the variant | **accepted** | HC-0 |
 
 ## ADR-001 — Interposition
 
@@ -44,3 +45,36 @@ are both first-class and both appear in the M3 matrix. The daemon advertises
 which levers are active and refuses policies a mode cannot honour. Stream
 priorities are assumed inert across processes without MPS; that assumption is
 measured by H3 and H4 before anything depends on it.
+
+## ADR-004 — CUDA 13.x headers, driver-decided variants
+
+Decided by the human at HC-0. The shim builds against CUDA 13.x so it knows
+every symbol and struct version the installed driver exports; the tenant's
+toolkit stays pinned to whatever vLLM's wheel expects, because the two are
+independent. `cuGetProcAddress` becomes resolve-then-substitute through a
+pointer-keyed table, so variant selection is the driver's job. A load-time
+`cuDriverGetVersion` check refuses to load, with a legible error, when the
+driver is older than the headers — a deliberate and bounded exception to I-5,
+which forbids hanging a tenant, not failing one loudly.
+
+M0's measurements are why: the L4's driver reports CUDA 13000 while the shim
+was built against 12060, and it exports 67 `cu*` symbols those headers do not
+know.
+
+## HC-0 decisions of record (2026-09-21)
+
+1. **Delta: not approved as written**; replaced verbatim in `docs/RELATED.md`,
+   and **H9** added to M1 as a hard hypothesis. The delta now rests on a
+   bandwidth-pressure claim that H9 is allowed to falsify.
+2. **ADR-001 accepted**, with the export list to be generated from the installed
+   driver rather than the stub, and no driver calls from constructors. The
+   platform wrinkle (the driver is only present when a GPU is attached) is
+   recorded in that ADR.
+3. **M1 budget stays $25.**
+4. **Disk cleanup approved and done**: journald 2.1 GB to 165 MB, apt 600 MB
+   freed, Hugging Face cache (10 repos, 4.9 GB) removed after listing. 4545 MB
+   free; the human resizes the VM if it drops under 2 GB.
+5. **The repository is public from day one**:
+   `https://github.com/riskywindow/tessera`. **M0 cannot be GREEN until CI has
+   run green once** — added to the M0 gate as G10.
+6. **ADR-004**, above.
